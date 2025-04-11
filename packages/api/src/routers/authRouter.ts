@@ -29,7 +29,7 @@ const loginSchema = z.object({
 router.post("/register", async (req, res) => {
   try {
     const validatedData = registerSchema.parse(req.body);
-    const { name, email, password, role } = validatedData;
+    const { name, email, password } = validatedData;
 
     // Check if user already exists
     const existingUser = await db.query.users.findFirst({
@@ -53,13 +53,12 @@ router.post("/register", async (req, res) => {
         name,
         email,
         password: hashedPassword,
-        role,
       } as NewUser)
       .returning();
 
     // Generate JWT token
     const token = jwt.sign(
-      { id: newUser.id, email: newUser.email, role: newUser.role },
+      { id: newUser.id, email: newUser.email },
       JWT_SECRET,
       { expiresIn: JWT_EXPIRES_IN }
     );
@@ -119,11 +118,9 @@ router.post("/login", async (req, res) => {
     }
 
     // Generate JWT token
-    const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
-      JWT_SECRET,
-      { expiresIn: JWT_EXPIRES_IN }
-    );
+    const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, {
+      expiresIn: JWT_EXPIRES_IN,
+    });
 
     // Remove password from response
     const { password: _, ...userWithoutPassword } = user;

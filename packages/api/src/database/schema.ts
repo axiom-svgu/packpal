@@ -10,14 +10,7 @@ import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
 
-// Define user roles
-export const userRoleEnum = pgEnum("user_role", [
-  "owner",
-  "admin",
-  "member",
-  "viewer",
-]);
-
+// Define group roles
 export const groupRoleEnum = pgEnum("group_role", [
   "owner",
   "admin",
@@ -30,7 +23,6 @@ export const users = pgTable("user", {
   name: varchar("name", { length: 255 }).notNull(),
   email: varchar("email", { length: 255 }).notNull().unique(),
   password: varchar("password", { length: 255 }).notNull(),
-  role: userRoleEnum("role").notNull().default("viewer"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -74,7 +66,7 @@ export const groupCreationSchema = z.object({
 });
 
 export const groupMemberSchema = z.object({
-  userId: z.string().uuid(),
+  email: z.string().email("Valid email is required"),
   role: z.enum(["owner", "admin", "member", "viewer"]),
 });
 
@@ -83,7 +75,6 @@ export const userRegistrationSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email(),
   password: z.string().min(6, "Password must be at least 6 characters long"),
-  role: z.enum(["owner", "admin", "member", "viewer"]).default("viewer"),
 });
 
 // Types from schema
@@ -94,5 +85,4 @@ export type NewGroup = InferInsertModel<typeof groups>;
 export type GroupMember = InferSelectModel<typeof groupMembers>;
 export type NewGroupMember = InferInsertModel<typeof groupMembers>;
 export type UserRegistration = z.infer<typeof userRegistrationSchema>;
-export type UserRole = "owner" | "admin" | "member" | "viewer";
 export type GroupRole = "owner" | "admin" | "member" | "viewer";

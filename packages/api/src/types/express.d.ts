@@ -1,13 +1,10 @@
-import { UserRole } from "../database/schema";
-
-declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        id: string;
-        email: string;
-        role: UserRole;
-      };
-    }
+declare namespace Express {
+  export interface Request {
+    user?: {
+      id: string;
+      email: string;
+    };
   }
 }
+
+export {};

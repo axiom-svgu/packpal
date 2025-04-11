@@ -1,11 +1,14 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import constants from "../utils/constants";
-import { UserRole } from "../database/schema";
+import { GroupRole } from "../database/schema";
 import { JWT_SECRET } from "../utils/constants";
+import { db } from "../database";
+import { groupMembers } from "../database/schema";
+import { and, eq } from "drizzle-orm";
 
 // Define role hierarchy
-const roleHierarchy: Record<UserRole, number> = {
+const roleHierarchy: Record<GroupRole, number> = {
   owner: 4,
   admin: 3,
   member: 2,
@@ -31,7 +34,6 @@ export const authMiddleware = (
     const decoded = jwt.verify(token, JWT_SECRET) as {
       id: string;
       email: string;
-      role: UserRole;
     };
 
     req.user = decoded;
@@ -44,6 +46,54 @@ export const authMiddleware = (
   }
 };
 
+// Check if user is a member of the group with minimum required role
+export const requireGroupRole = (groupId: string, requiredRole: GroupRole) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    const authenticatedReq = req;
+    const user = authenticatedReq.user;
+
+    if (!user) {
+      return res.status(401).json({
+        message: "Authentication required",
+        success: false,
+      });
+    }
+
+    try {
+      // Find the user's role in the specified group
+      const membership = await db.query.groupMembers.findFirst({
+        where: and(
+          eq(groupMembers.groupId, groupId),
+          eq(groupMembers.userId, user.id)
+        ),
+      });
+
+      if (!membership) {
+        return res.status(403).json({
+          message: "You are not a member of this group",
+          success: false,
+        });
+      }
+
+      if (roleHierarchy[membership.role] < roleHierarchy[requiredRole]) {
+        return res.status(403).json({
+          message: "Insufficient permissions in this group",
+          success: false,
+        });
+      }
+
+      next();
+    } catch (error) {
+      console.error("Group role check error:", error);
+      return res.status(500).json({
+        message: "Internal server error",
+        success: false,
+      });
+    }
+  };
+};
+
+// The following functions are kept for backward compatibility but will be deprecated
 export const adminAuthMiddleware = (
   req: Request,
   res: Response,
@@ -58,13 +108,9 @@ export const adminAuthMiddleware = (
     const decoded = jwt.verify(token, constants.JWT_SECRET) as {
       id: string;
       email: string;
-      role: UserRole;
     };
 
-    if (decoded.role !== "admin") {
-      return res.status(403).json({ message: "Forbidden", success: false });
-    }
-
+    // Skip the role check since we no longer have user roles
     req.user = decoded;
     next();
   } catch (err) {
@@ -72,48 +118,17 @@ export const adminAuthMiddleware = (
   }
 };
 
-// Middleware to check if user has required role
-export const requireRole = (requiredRole: UserRole) => {
+// These middleware functions will be deprecated in favor of requireGroupRole
+export const requireRole = (requiredRole: GroupRole) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    const user = req.user;
-
-    if (!user) {
-      return res.status(401).json({
-        message: "Authentication required",
-        success: false,
-      });
-    }
-
-    if (roleHierarchy[user.role] < roleHierarchy[requiredRole]) {
-      return res.status(403).json({
-        message: "Insufficient permissions",
-        success: false,
-      });
-    }
-
+    // We don't check roles at the user level anymore
     next();
   };
 };
 
-// Middleware to check if user has at least one of the required roles
-export const requireAnyRole = (requiredRoles: UserRole[]) => {
+export const requireAnyRole = (requiredRoles: GroupRole[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    const user = req.user;
-
-    if (!user) {
-      return res.status(401).json({
-        message: "Authentication required",
-        success: false,
-      });
-    }
-
-    if (!requiredRoles.includes(user.role)) {
-      return res.status(403).json({
-        message: "Insufficient permissions",
-        success: false,
-      });
-    }
-
+    // We don't check roles at the user level anymore
     next();
   };
 };
