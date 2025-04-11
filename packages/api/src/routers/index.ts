@@ -1,5 +1,5 @@
 import type { Express } from "express";
-import authRouter from "./authRouter";
+import authRouter from "./auth";
 
 export async function registerRouters(app: Express) {
   const routers = [{ path: "/auth", router: authRouter }];
