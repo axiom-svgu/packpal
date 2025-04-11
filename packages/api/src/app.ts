@@ -14,7 +14,14 @@ const port = constants.PORT;
 async function initializeApp() {
   bindLogger();
   app.use(loggingMiddleware);
-  app.use(cors());
+  app.use(
+    cors({
+      origin: ["http://localhost:5173", "https://packpal-app.axiomclub.tech"],
+      credentials: true,
+      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Authorization"],
+    })
+  );
   if (!validateEnv()) {
     console.log(`Please fix the environment variables and try again`);
     process.exit(1);
