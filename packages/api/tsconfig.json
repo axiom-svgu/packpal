@@ -6,8 +6,8 @@
     "outDir": "./build",
     "sourceMap": true,
     "declaration": false,
-    "module": "Node16",
-    "moduleResolution": "node16",
+    "module": "commonjs",
+    "moduleResolution": "node",
     "target": "es2020",
     "typeRoots": [
       "./node_modules/@types",
@@ -28,7 +28,7 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "experimentalDecorators": true,
-    "skipLibCheck": true,
+    "skipLibCheck": false,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "emitDecoratorMetadata": true
