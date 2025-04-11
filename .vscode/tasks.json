@@ -1,0 +1,43 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Start API",
+      "type": "shell",
+      "command": "cd ${workspaceFolder} && bun run --cwd packages/api dev",
+      "problemMatcher": [],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "Start Web App",
+      "type": "shell",
+      "command": "cd ${workspaceFolder} && bun run --cwd packages/web dev",
+      "problemMatcher": [],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "Start Landing Page",
+      "type": "shell",
+      "command": "cd ${workspaceFolder} && bun run --cwd packages/landing dev",
+      "problemMatcher": [],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "Start All Services",
+      "dependsOn": ["Start API", "Start Web App", "Start Landing Page"],
+      "problemMatcher": []
+    }
+  ]
+} 

@@ -1,0 +1,33 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "Debug Web App",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}/packages/web",
+      "sourceMapPathOverrides": {
+        "webpack:///src/*": "${webRoot}/*"
+      }
+    },
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "Debug Landing Page",
+      "url": "http://localhost:5174",
+      "webRoot": "${workspaceFolder}/packages/landing",
+      "sourceMapPathOverrides": {
+        "webpack:///src/*": "${webRoot}/*"
+      }
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Debug API",
+      "port": 9229,
+      "restart": true,
+      "skipFiles": ["<node_internals>/**"]
+    }
+  ]
+} 
