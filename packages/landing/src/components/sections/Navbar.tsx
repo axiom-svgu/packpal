@@ -51,7 +51,7 @@ export default function Navbar() {
             (window.location.href = "https://packpal-app.axiomclub.tech/signin")
           }
         >
-          Sign up free
+          Sign Up
         </Button>
       </div>
     </nav>
