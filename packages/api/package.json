@@ -5,7 +5,8 @@
   "private": true,
   "scripts": {
     "dev": "bun run --watch src/app.ts",
-    "start": "bun run src/index.ts",
+    "build": "npm run tsc",
+    "start": "node dist/index.js",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "bun run src/database/migrate.ts",
     "db:studio": "drizzle-kit studio"
