@@ -1,43 +1,49 @@
-import express from "express";
+import { Router } from "express";
+import type { RequestHandler } from "express";
 
-const router = express.Router();
+const router = Router();
 
 // Initiate registration by sending OTP
-router.post("/register", async (req, res) => {
+const registerHandler: RequestHandler = (req, res) => {
   try {
     const { email } = req.body;
     if (!email) {
-      return res.status(400).json({
+      res.status(400).json({
         message: "Email is required",
         success: false,
       });
+      return;
     }
   } catch (error) {
     console.error("Registration error:", error);
-    return res.status(500).json({
+    res.status(500).json({
       message: "Internal server error",
       success: false,
     });
   }
-});
+};
 
 // Initiate login by sending OTP
-router.post("/login", async (req, res) => {
+const loginHandler: RequestHandler = (req, res) => {
   try {
     const { email } = req.body;
     if (!email) {
-      return res.status(400).json({
+      res.status(400).json({
         message: "Email is required",
         success: false,
       });
+      return;
     }
   } catch (error) {
     console.error("Login error:", error);
-    return res.status(500).json({
+    res.status(500).json({
       message: "Internal server error",
       success: false,
     });
   }
-});
+};
+
+router.post("/register", registerHandler);
+router.post("/login", loginHandler);
 
 export default router;

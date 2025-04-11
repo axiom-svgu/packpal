@@ -11,12 +11,11 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
-    "@elysiajs/cors": "^0.7.0",
-    "@elysiajs/jwt": "^0.7.0",
     "@node-rs/bcrypt": "^1.7.3",
+    "cors": "^2.8.5",
     "drizzle-orm": "^0.41.0",
     "drizzle-zod": "^0.7.1",
-    "elysia": "^0.7.0",
+    "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.11.3",
     "postgres": "^3.4.3",
@@ -24,6 +23,7 @@
   },
   "devDependencies": {
     "@types/bun": "latest",
+    "@types/express": "^5.0.1",
     "@types/jsonwebtoken": "^9.0.5",
     "@types/pg": "^8.10.9",
     "dotenv": "^16.4.7",
