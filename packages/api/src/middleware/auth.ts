@@ -1,43 +1,44 @@
-import { Elysia } from "elysia";
-import { jwt } from "@elysiajs/jwt";
+import type { NextFunction, Request, Response } from "express";
+import jwt from "jsonwebtoken";
+import constants from "../utils/constants";
 
-// JWT middleware for authentication
-export const jwtMiddleware = new Elysia().use(
-  jwt({
-    name: "jwt",
-    secret: process.env.JWT_SECRET || "your-secret-key",
-  })
-);
+export const authMiddleware = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) {
+    return res.status(401).json({ message: "Unauthorized", success: false });
+  }
 
-// Auth middleware to verify JWT token
-export const authMiddleware = new Elysia()
-  .use(jwtMiddleware)
-  .derive(async ({ jwt, request, set }) => {
-    const authorization = request.headers.get("authorization");
+  try {
+    (req as any).user = jwt.verify(token, constants.JWT_SECRET);
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: "Unauthorized", success: false });
+  }
+};
 
-    if (!authorization || !authorization.startsWith("Bearer ")) {
-      set.status = 401;
-      return { user: null };
+export const adminAuthMiddleware = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) {
+    return res.status(401).json({ message: "Unauthorized", success: false });
+  }
+
+  try {
+    const user = jwt.verify(token, constants.JWT_SECRET);
+    if ((user as any).role !== "admin") {
+      return res.status(403).json({ message: "Forbidden", success: false });
     }
 
-    const token = authorization.split(" ")[1];
-    const payload = await jwt.verify(token);
-
-    if (!payload) {
-      set.status = 401;
-      return { user: null };
-    }
-
-    return { user: payload };
-  });
-
-// Auth guard that can be used in routes
-export const authGuard = new Elysia()
-  .use(authMiddleware)
-  .derive(({ user, set }) => {
-    if (!user) {
-      set.status = 401;
-      return { error: "Unauthorized" };
-    }
-    return {};
-  });
+    (req as any).user = user;
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: "Unauthorized", success: false });
+  }
+};
