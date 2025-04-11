@@ -5,8 +5,8 @@
   "private": true,
   "scripts": {
     "dev": "bun run --watch src/app.ts",
-    "build": "npm run tsc",
-    "start": "node dist/index.js",
+    "build": "tsc",
+    "start": "npm run build && node build/app.js",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "bun run src/database/migrate.ts",
     "db:studio": "drizzle-kit studio"
@@ -24,6 +24,7 @@
   },
   "devDependencies": {
     "@types/bun": "latest",
+    "@types/cors": "^2.8.17",
     "@types/express": "^5.0.1",
     "@types/jsonwebtoken": "^9.0.5",
     "@types/pg": "^8.10.9",
