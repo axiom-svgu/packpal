@@ -3,15 +3,15 @@ import {
   Settings2,
   Users,
   Building2,
-  PackageSearch,
-  Truck,
   BarChart3,
   ClipboardList,
-  ShoppingCart,
-  Warehouse,
   UserCog,
   ScrollText,
   Bell,
+  Gauge,
+  CalendarRange,
+  ClipboardCheck,
+  GaugeCircle,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -26,13 +26,11 @@ import {
 } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/hooks/use-auth";
-
-// Navigation items for different roles
 const roleBasedNavigation = {
   owner: {
     teams: [
       {
-        name: "Your Organization",
+        name: "Your Events",
         logo: Building2,
       },
     ],
@@ -48,8 +46,8 @@ const roleBasedNavigation = {
             url: "/dashboard",
           },
           {
-            title: "Analytics",
-            url: "/dashboard/analytics",
+            title: "Progress",
+            url: "/dashboard/progress",
           },
           {
             title: "Reports",
@@ -58,21 +56,51 @@ const roleBasedNavigation = {
         ],
       },
       {
-        title: "Organization",
-        url: "/organization",
+        title: "Events",
+        url: "/events",
+        icon: CalendarRange,
+        items: [
+          {
+            title: "All Events",
+            url: "/events",
+          },
+          {
+            title: "Create Event",
+            url: "/events/create",
+          },
+        ],
+      },
+      {
+        title: "Checklist",
+        url: "/checklist",
+        icon: ClipboardList,
+        items: [
+          {
+            title: "Categories",
+            url: "/checklist/categories",
+          },
+          {
+            title: "Items",
+            url: "/checklist/items",
+          },
+          {
+            title: "Assignments",
+            url: "/checklist/assignments",
+          },
+        ],
+      },
+      {
+        title: "Team",
+        url: "/team",
         icon: Users,
         items: [
           {
-            title: "Team Members",
-            url: "/organization/members",
+            title: "Members",
+            url: "/team/members",
           },
           {
             title: "Roles & Permissions",
-            url: "/organization/roles",
-          },
-          {
-            title: "Billing",
-            url: "/organization/billing",
+            url: "/team/roles",
           },
         ],
       },
@@ -86,73 +114,64 @@ const roleBasedNavigation = {
             url: "/settings/organization",
           },
           {
-            title: "Security",
-            url: "/settings/security",
-          },
-          {
-            title: "API Keys",
-            url: "/settings/api-keys",
+            title: "Notifications",
+            url: "/settings/notifications",
           },
         ],
       },
     ],
   },
+
   admin: {
     teams: [
       {
-        name: "Admin Panel",
+        name: "Admin Tools",
         logo: UserCog,
       },
     ],
     navMain: [
       {
-        title: "Inventory",
-        url: "/inventory",
-        icon: Warehouse,
+        title: "Checklist",
+        url: "/checklist",
+        icon: ClipboardList,
         isActive: true,
         items: [
           {
-            title: "Products",
-            url: "/inventory/products",
-          },
-          {
             title: "Categories",
-            url: "/inventory/categories",
+            url: "/checklist/categories",
           },
           {
-            title: "Stock Management",
-            url: "/inventory/stock",
+            title: "Items",
+            url: "/checklist/items",
+          },
+          {
+            title: "Assignments",
+            url: "/checklist/assignments",
           },
         ],
       },
       {
-        title: "Orders",
-        url: "/orders",
-        icon: ShoppingCart,
+        title: "Team",
+        url: "/team",
+        icon: Users,
         items: [
           {
-            title: "All Orders",
-            url: "/orders/all",
-          },
-          {
-            title: "Pending",
-            url: "/orders/pending",
-          },
-          {
-            title: "Fulfilled",
-            url: "/orders/fulfilled",
+            title: "Members",
+            url: "/team/members",
           },
         ],
+      },
+      {
+        title: "Progress",
+        url: "/dashboard/progress",
+        icon: GaugeCircle,
+        items: [],
       },
       {
         title: "Settings",
         url: "/settings",
         icon: Settings2,
         items: [
-          {
-            title: "General",
-            url: "/settings/general",
-          },
           {
             title: "Notifications",
             url: "/settings/notifications",
@@ -161,100 +180,75 @@ const roleBasedNavigation = {
       },
     ],
   },
+
   member: {
     teams: [
       {
-        name: "Team Space",
+        name: "My Events",
         logo: Users,
       },
     ],
     navMain: [
       {
-        title: "Orders",
-        url: "/orders",
-        icon: ClipboardList,
+        title: "My Checklist",
+        url: "/my-checklist",
+        icon: ClipboardCheck,
         isActive: true,
         items: [
           {
-            title: "My Orders",
-            url: "/orders/my",
+            title: "Assigned Items",
+            url: "/my-checklist/items",
           },
           {
-            title: "Track Order",
-            url: "/orders/track",
+            title: "Update Status",
+            url: "/my-checklist/status",
           },
         ],
       },
       {
-        title: "Products",
-        url: "/products",
-        icon: PackageSearch,
-        items: [
-          {
-            title: "Browse",
-            url: "/products/browse",
-          },
-          {
-            title: "Saved Items",
-            url: "/products/saved",
-          },
-        ],
+        title: "Progress",
+        url: "/progress",
+        icon: Gauge,
+        items: [],
       },
       {
         title: "Notifications",
         url: "/notifications",
         icon: Bell,
-        items: [
-          {
-            title: "All",
-            url: "/notifications/all",
-          },
-          {
-            title: "Settings",
-            url: "/notifications/settings",
-          },
-        ],
+        items: [],
       },
     ],
   },
+
   viewer: {
     teams: [
       {
-        name: "View Only",
+        name: "Read-Only Access",
         logo: ScrollText,
       },
     ],
     navMain: [
       {
-        title: "Products",
-        url: "/products",
-        icon: PackageSearch,
+        title: "Checklist",
+        url: "/checklist",
+        icon: ClipboardList,
         isActive: true,
         items: [
           {
-            title: "Browse",
-            url: "/products/browse",
+            title: "View Categories",
+            url: "/checklist/categories",
           },
           {
-            title: "Categories",
-            url: "/products/categories",
+            title: "View Items",
+            url: "/checklist/items",
           },
         ],
       },
       {
-        title: "Track Orders",
-        url: "/track",
-        icon: Truck,
-        items: [
-          {
-            title: "Search Order",
-            url: "/track/search",
-          },
-          {
-            title: "Recent",
-            url: "/track/recent",
-          },
-        ],
+        title: "Progress",
+        url: "/progress",
+        icon: Gauge,
+        items: [],
       },
     ],
   },
