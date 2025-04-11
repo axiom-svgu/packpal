@@ -1,4 +1,4 @@
-// import { Navigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/use-auth";
 import { SidebarInset, SidebarProvider } from "./ui/sidebar";
 import { AppSidebar } from "./app-sidebar";
@@ -8,10 +8,11 @@ interface ProtectedRouteProps {
 }
 
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
 
-  if (!user) {
-    // return <Navigate to="/login" />;
+  if (!isAuthenticated || !user) {
+    console.log("Not authenticated or no user");
+    return <Navigate to="/login" />;
   }
 
   return (

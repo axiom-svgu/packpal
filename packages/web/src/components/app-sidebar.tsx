@@ -121,10 +121,8 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const isMobile = useIsMobile();
   const { user } = useAuth();
-  const navigate = useNavigate();
 
   if (!user) {
-    navigate("/login");
     return null;
   }
 

@@ -102,8 +102,9 @@ function SignInForm({ className, ...props }: React.ComponentProps<"form">) {
       if (response.error) {
         setError(response.error);
       } else if (response.data) {
-        // Update auth store
-        useAuthStore.getState().login(response.data.user, response.data.token);
+        useAuthStore
+          .getState()
+          .login(response.data.data.user, response.data.data.token);
         navigate("/");
       }
     } catch (err) {
