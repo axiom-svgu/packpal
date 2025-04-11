@@ -9,16 +9,10 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "target": "es2020",
-    "typeRoots": [
-      "./node_modules/@types",
-      "./src/types/index.d.ts",
-      "./src/types",
-      "./src/types/express.d.ts"
-    ],
-    "types": ["node", "express"],
+    "typeRoots": ["node_modules/@types"],
     "lib": ["es2018", "dom", "esnext.asynciterable"],
     "paths": {
-      "@backend/*": ["../functions/functions/lib/*"]
+      "@backend/*": ["../functions/functions/lib/*"] // this mapping is relative to "baseUrl"
     },
     "plugins": [
       {
@@ -33,6 +27,6 @@
     "resolveJsonModule": true,
     "emitDecoratorMetadata": true
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "build"]
+  "include": ["src/**/*.ts", "netlify/**/*.ts"],
+  "exclude": ["node_modules"]
 }

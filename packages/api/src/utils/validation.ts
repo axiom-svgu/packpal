@@ -14,3 +14,28 @@ export function validateEnv() {
 
   return valid;
 }
+
+export function validateEmail(email: string) {
+  const re = /\S+@\S+\.\S+/;
+  return re.test(email);
+}
+
+export function validatePassword(email: string) {
+  const passwordRegex = new RegExp("^.{8,}$");
+  return passwordRegex.test(email);
+}
+
+export function validatePhone(phone: string) {
+  const re = /^\d{10}$/;
+  return re.test(phone);
+}
+
+export function validateUrl(url: string) {
+  const re = /^(http|https):\/\/[^ "]+$/;
+  return re.test(url);
+}
+
+export function validateUsername(username: string) {
+  const re = /^[a-zA-Z0-9]+$/;
+  return re.test(username);
+}

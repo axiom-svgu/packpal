@@ -11,7 +11,8 @@ export async function sendToWebhook(url: string, msg: string) {
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.error("Error sending to webhook", errorData);
+      console.fatal("Error sending to webhook", errorData);
+      return;
     }
   } catch (err) {
     console.error("Error sending to webhook", err);
