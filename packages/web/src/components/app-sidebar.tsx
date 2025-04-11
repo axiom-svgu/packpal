@@ -12,6 +12,10 @@ import {
   CalendarRange,
   ClipboardCheck,
   GaugeCircle,
+  Package,
+  UserPlus,
+  Layers,
+  User,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -26,6 +30,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/hooks/use-auth";
+
 const roleBasedNavigation = {
   owner: {
     teams: [
@@ -40,84 +45,41 @@ const roleBasedNavigation = {
         url: "/dashboard",
         icon: BarChart3,
         isActive: true,
-        items: [
-          {
-            title: "Overview",
-            url: "/dashboard",
-          },
-          {
-            title: "Progress",
-            url: "/dashboard/progress",
-          },
-          {
-            title: "Reports",
-            url: "/dashboard/reports",
-          },
-        ],
       },
       {
-        title: "Events",
-        url: "/events",
-        icon: CalendarRange,
-        items: [
-          {
-            title: "All Events",
-            url: "/events",
-          },
-          {
-            title: "Create Event",
-            url: "/events/create",
-          },
-        ],
-      },
-      {
-        title: "Checklist",
-        url: "/checklist",
+        title: "Packing Lists",
+        url: "/packing-lists",
         icon: ClipboardList,
-        items: [
-          {
-            title: "Categories",
-            url: "/checklist/categories",
-          },
-          {
-            title: "Items",
-            url: "/checklist/items",
-          },
-          {
-            title: "Assignments",
-            url: "/checklist/assignments",
-          },
-        ],
       },
       {
-        title: "Team",
-        url: "/team",
-        icon: Users,
-        items: [
-          {
-            title: "Members",
-            url: "/team/members",
-          },
-          {
-            title: "Roles & Permissions",
-            url: "/team/roles",
-          },
-        ],
+        title: "Assign Items",
+        url: "/assign-items",
+        icon: Package,
+      },
+      {
+        title: "Manage Roles",
+        url: "/manage-roles",
+        icon: UserCog,
+      },
+      {
+        title: "Create Event/Trip",
+        url: "/create-event",
+        icon: CalendarRange,
       },
       {
         title: "Settings",
         url: "/settings",
         icon: Settings2,
-        items: [
-          {
-            title: "Organization",
-            url: "/settings/organization",
-          },
-          {
-            title: "Notifications",
-            url: "/settings/notifications",
-          },
-        ],
+      },
+      {
+        title: "Notifications",
+        url: "/notifications",
+        icon: Bell,
+      },
+      {
+        title: "Profile",
+        url: "/profile",
+        icon: User,
       },
     ],
   },
@@ -131,52 +93,40 @@ const roleBasedNavigation = {
     ],
     navMain: [
       {
-        title: "Checklist",
-        url: "/checklist",
-        icon: ClipboardList,
+        title: "Dashboard",
+        url: "/dashboard",
+        icon: BarChart3,
         isActive: true,
-        items: [
-          {
-            title: "Categories",
-            url: "/checklist/categories",
-          },
-          {
-            title: "Items",
-            url: "/checklist/items",
-          },
-          {
-            title: "Assignments",
-            url: "/checklist/assignments",
-          },
-        ],
       },
       {
-        title: "Team",
-        url: "/team",
-        icon: Users,
-        items: [
-          {
-            title: "Members",
-            url: "/team/members",
-          },
-        ],
+        title: "Packing Lists",
+        url: "/packing-lists",
+        icon: ClipboardList,
       },
       {
-        title: "Progress",
-        url: "/dashboard/progress",
-        icon: GaugeCircle,
-        items: [],
+        title: "Assign Items",
+        url: "/assign-items",
+        icon: Package,
+      },
+      {
+        title: "Manage Categories",
+        url: "/manage-categories",
+        icon: Layers,
       },
       {
         title: "Settings",
         url: "/settings",
         icon: Settings2,
-        items: [
-          {
-            title: "Notifications",
-            url: "/settings/notifications",
-          },
-        ],
+      },
+      {
+        title: "Notifications",
+        url: "/notifications",
+        icon: Bell,
+      },
+      {
+        title: "Profile",
+        url: "/profile",
+        icon: User,
       },
     ],
   },
@@ -190,32 +140,35 @@ const roleBasedNavigation = {
     ],
     navMain: [
       {
-        title: "My Checklist",
-        url: "/my-checklist",
-        icon: ClipboardCheck,
+        title: "Dashboard",
+        url: "/dashboard",
+        icon: BarChart3,
         isActive: true,
-        items: [
-          {
-            title: "Assigned Items",
-            url: "/my-checklist/items",
-          },
-          {
-            title: "Update Status",
-            url: "/my-checklist/status",
-          },
-        ],
       },
       {
-        title: "Progress",
-        url: "/progress",
-        icon: Gauge,
-        items: [],
+        title: "Packing Lists",
+        url: "/packing-lists",
+        icon: ClipboardList,
+      },
+      {
+        title: "My Items",
+        url: "/my-items",
+        icon: Package,
+      },
+      {
+        title: "Suggest Items",
+        url: "/suggest-items",
+        icon: UserPlus,
       },
       {
         title: "Notifications",
         url: "/notifications",
         icon: Bell,
-        items: [],
+      },
+      {
+        title: "Profile",
+        url: "/profile",
+        icon: User,
       },
     ],
   },
@@ -229,26 +182,30 @@ const roleBasedNavigation = {
     ],
     navMain: [
       {
-        title: "Checklist",
-        url: "/checklist",
-        icon: ClipboardList,
+        title: "Dashboard",
+        url: "/dashboard",
+        icon: BarChart3,
         isActive: true,
-        items: [
-          {
-            title: "View Categories",
-            url: "/checklist/categories",
-          },
-          {
-            title: "View Items",
-            url: "/checklist/items",
-          },
-        ],
       },
       {
-        title: "Progress",
-        url: "/progress",
-        icon: Gauge,
-        items: [],
+        title: "Packing Lists",
+        url: "/packing-lists",
+        icon: ClipboardList,
+      },
+      {
+        title: "Group Progress",
+        url: "/group-progress",
+        icon: GaugeCircle,
+      },
+      {
+        title: "Notifications",
+        url: "/notifications",
+        icon: Bell,
+      },
+      {
+        title: "Profile",
+        url: "/profile",
+        icon: User,
       },
     ],
   },
