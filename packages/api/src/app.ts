@@ -4,6 +4,7 @@ import cors from "cors";
 import { registerRouters } from "./routers";
 import { bindLogger } from "./utils/logging";
 import { validateEnv } from "./utils/validation";
+import bodyParser from "body-parser";
 
 import constants from "./utils/constants";
 import { loggingMiddleware } from "./middleware/log";
@@ -12,6 +13,26 @@ const app = express();
 const port = constants.PORT;
 
 async function initializeApp() {
+  app.use(
+    bodyParser.json({
+      verify: (req, res, buf, encoding) => {
+        try {
+          JSON.parse(buf.toString());
+        } catch (e) {
+          res.statusCode = 400;
+          res.setHeader("content-type", "application/json");
+          res.write(
+            JSON.stringify({
+              message: "Invalid JSON",
+              success: false,
+            })
+          );
+          res.end();
+        }
+      },
+    })
+  );
+
   bindLogger();
   app.use(loggingMiddleware);
   app.use(

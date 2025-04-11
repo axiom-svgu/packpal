@@ -1,6 +1,7 @@
 import { drizzle } from "drizzle-orm/postgres-js";
-import { migrate } from "drizzle-orm/postgres-js/migrator";
 import postgres from "postgres";
+import { migrate } from "drizzle-orm/postgres-js/migrator";
+import * as schema from "./schema";
 import * as dotenv from "dotenv";
 
 // Load environment variables
@@ -13,21 +14,23 @@ const connectionString = `postgres://${process.env.DB_USER || "postgres"}:${
   process.env.DB_NAME || "postgres"
 }?sslmode=require`;
 
+// Create Postgres client
+const client = postgres(connectionString, { max: 1 });
+
+// Create Drizzle ORM instance
+const db = drizzle(client, { schema });
+
 // Run migrations
 async function main() {
-  const migrationClient = postgres(connectionString, { max: 1 });
-  const db = drizzle(migrationClient);
-
   console.log("Running migrations...");
 
   try {
     await migrate(db, { migrationsFolder: "./src/database/migrations" });
     console.log("Migrations completed successfully");
+    process.exit(0);
   } catch (error) {
     console.error("Error running migrations:", error);
     process.exit(1);
-  } finally {
-    await migrationClient.end();
   }
 }
 
