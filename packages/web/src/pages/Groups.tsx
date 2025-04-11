@@ -17,8 +17,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useAuth } from "@/hooks/useAuth";
-import { api } from "@/lib/api";
+import { useAuth } from "@/hooks/use-auth";
+import { get, post } from "@/services/HttpHelper";
 
 interface Group {
   id: string;
@@ -29,7 +29,6 @@ interface Group {
 }
 
 export default function Groups() {
-  const { user } = useAuth();
   const [groups, setGroups] = useState<Group[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [newGroup, setNewGroup] = useState({
@@ -43,8 +42,10 @@ export default function Groups() {
 
   const fetchGroups = async () => {
     try {
-      const response = await api.get("/groups");
-      setGroups(response.data.data);
+      const response = await get<{ data: Group[] }>("/groups");
+      if (response.data && response.data.data) {
+        setGroups(response.data.data);
+      }
     } catch (error) {
       console.error("Error fetching groups:", error);
     } finally {
@@ -54,7 +55,7 @@ export default function Groups() {
 
   const handleCreateGroup = async () => {
     try {
-      await api.post("/groups", newGroup);
+      await post("/groups", newGroup);
       setNewGroup({ name: "", description: "" });
       fetchGroups();
     } catch (error) {
@@ -98,7 +99,7 @@ export default function Groups() {
                 </label>
                 <Textarea
                   value={newGroup.description}
-                  onChange={(e) =>
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                     setNewGroup({ ...newGroup, description: e.target.value })
                   }
                   placeholder="Group description"

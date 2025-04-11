@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -32,8 +33,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { useAuth } from "@/hooks/useAuth";
-import { api } from "@/lib/api";
+import { get, post, put, del } from "@/services/HttpHelper";
+
+interface ApiResponse<T> {
+  data: T;
+  success: boolean;
+  message: string;
+}
 
 interface Group {
   id: string;
@@ -72,11 +78,14 @@ export default function GroupDetails() {
   const fetchGroupDetails = async () => {
     try {
       const [groupResponse, membersResponse] = await Promise.all([
-        api.get(`/groups/${groupId}`),
-        api.get(`/groups/${groupId}/members`),
+        get<ApiResponse<Group>>(`/groups/${groupId}`),
+        get<ApiResponse<GroupMember[]>>(`/groups/${groupId}/members`),
       ]);
-      setGroup(groupResponse.data.data);
-      setMembers(membersResponse.data.data);
+
+      if (groupResponse.data && membersResponse.data) {
+        setGroup(groupResponse.data.data);
+        setMembers(membersResponse.data.data);
+      }
     } catch (error) {
       console.error("Error fetching group details:", error);
     } finally {
@@ -86,7 +95,7 @@ export default function GroupDetails() {
 
   const handleAddMember = async () => {
     try {
-      await api.post(`/groups/${groupId}/members`, newMember);
+      await post<ApiResponse<void>>(`/groups/${groupId}/members`, newMember);
       setNewMember({ email: "", role: "member" });
       fetchGroupDetails();
     } catch (error) {
@@ -96,7 +105,9 @@ export default function GroupDetails() {
 
   const handleUpdateRole = async (userId: string, role: string) => {
     try {
-      await api.patch(`/groups/${groupId}/members/${userId}`, { role });
+      await put<ApiResponse<void>>(`/groups/${groupId}/members/${userId}`, {
+        role,
+      });
       fetchGroupDetails();
     } catch (error) {
       console.error("Error updating role:", error);
@@ -105,7 +116,7 @@ export default function GroupDetails() {
 
   const handleRemoveMember = async (userId: string) => {
     try {
-      await api.delete(`/groups/${groupId}/members/${userId}`);
+      await del<ApiResponse<void>>(`/groups/${groupId}/members/${userId}`);
       fetchGroupDetails();
     } catch (error) {
       console.error("Error removing member:", error);
