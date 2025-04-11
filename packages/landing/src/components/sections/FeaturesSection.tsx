@@ -5,32 +5,51 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Users2, BarChart3, Zap, Smartphone } from "lucide-react";
+import {
+  Users2,
+  ListChecks,
+  Bell,
+  Shield,
+  ClipboardCheck,
+  Clock,
+} from "lucide-react";
 
 const features = [
   {
-    title: "Employee Management",
+    title: "Role-Based Access",
     description:
-      "Streamline HR processes and manage your workforce efficiently with our comprehensive tools.",
+      "Assign Owner, Admin, Member, and Viewer roles to manage permissions and responsibilities effectively.",
+    icon: Shield,
+  },
+  {
+    title: "Smart Checklists",
+    description:
+      "Create and manage categorized packing lists with item assignments and status tracking.",
+    icon: ListChecks,
+  },
+  {
+    title: "Real-Time Progress",
+    description:
+      "Monitor packing progress with live updates as items move from 'To Pack' to 'Packed' to 'Delivered'.",
+    icon: Clock,
+  },
+  {
+    title: "Team Collaboration",
+    description:
+      "Work together seamlessly with shared lists and clear responsibility assignments.",
     icon: Users2,
   },
   {
-    title: "Analytics Dashboard",
+    title: "Conflict Detection",
     description:
-      "Get real-time insights into your organization's performance with detailed analytics.",
-    icon: BarChart3,
+      "Receive instant alerts for duplicate items and potential conflicts in your packing lists.",
+    icon: Bell,
   },
   {
-    title: "Quick Integration",
+    title: "Status Tracking",
     description:
-      "Easy setup and seamless integration with your existing systems and workflows.",
-    icon: Zap,
-  },
-  {
-    title: "Mobile First",
-    description:
-      "Access your HR platform anywhere, anytime with our mobile-optimized interface.",
-    icon: Smartphone,
+      "Keep track of every item's status and get a complete overview of your group's packing progress.",
+    icon: ClipboardCheck,
   },
 ];
 
@@ -39,15 +58,15 @@ export default function FeaturesSection() {
     <section className="container mx-auto py-24 px-4">
       <div className="text-center mb-16">
         <h2 className="text-3xl font-bold mb-4">
-          Everything you need to manage your workforce
+          Powerful Features for Group Organization
         </h2>
         <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-          Powerful features designed to help you transform your HR operations
-          and create a better workplace culture.
+          Everything you need to streamline group packing and keep everyone on
+          the same page.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {features.map((feature, index) => {
           const Icon = feature.icon;
           return (

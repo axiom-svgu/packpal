@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, Users, ListChecks, Clock } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
@@ -10,9 +11,6 @@ const fadeIn = {
 export default function HeroSection() {
   return (
     <section className="container mx-auto py-24 px-4 relative overflow-hidden">
-      {/* Background gradient */}
-      <div className="absolute inset-0 -z-10" />
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
         {/* Left Column */}
         <motion.div
@@ -26,31 +24,38 @@ export default function HeroSection() {
           {/* Heading */}
           <motion.div variants={fadeIn}>
             <h1 className="text-6xl font-bold mb-4 tracking-tight">
-              Your Gateway to{" "}
+              Group Packing{" "}
               <span className="text-primary underline decoration-wavy decoration-primary/30 underline-offset-8">
-                Web3
-              </span>{" "}
-              Innovation
+                Made Simple
+              </span>
             </h1>
             <p className="text-xl text-muted-foreground leading-relaxed">
-              Experience the future of decentralized finance. Trade, stake, and
-              earn with our next-gen DeFi platform powered by blockchain
-              technology.
+              Streamline your event and travel planning with collaborative
+              checklists. Assign tasks, track progress, and stay organized as a
+              team.
             </p>
           </motion.div>
 
           {/* Benefits */}
           <motion.div variants={fadeIn} className="space-y-3">
             {[
-              "Zero-gas fees on layer 2 transactions",
-              "Military-grade security protocols",
-              "Access to 100+ DeFi protocols",
+              "Real-time progress tracking and updates",
+              "Role-based access control for teams",
+              "Smart conflict detection and alerts",
             ].map((benefit) => (
               <div key={benefit} className="flex items-center gap-2">
                 <CheckCircle className="text-primary h-5 w-5" />
                 <span className="text-sm">{benefit}</span>
               </div>
             ))}
+          </motion.div>
+
+          {/* CTA Buttons */}
+          <motion.div variants={fadeIn} className="flex gap-4">
+            <Button size="lg">Get Started Free</Button>
+            <Button size="lg" variant="outline">
+              Watch Demo
+            </Button>
           </motion.div>
 
           {/* Social Proof */}
@@ -65,9 +70,7 @@ export default function HeroSection() {
                   .map((_, i) => (
                     <svg
                       key={i}
-                      className={`w-5 h-5 fill-current ${
-                        i === 4 ? "text-yellow-500/50" : "text-yellow-500"
-                      }`}
+                      className="w-5 h-5 text-yellow-500 fill-current"
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 24 24"
                     >
@@ -77,26 +80,24 @@ export default function HeroSection() {
                 <span className="ml-2 font-medium">4.9/5</span>
               </div>
               <p className="text-sm text-muted-foreground">
-                From 50,000+ traders
+                From 10,000+ organizers
               </p>
             </div>
 
             <div className="flex gap-4">
               <div className="text-center">
-                <p className="text-3xl font-bold text-primary">$2.5B</p>
-                <p className="text-sm text-muted-foreground">
-                  Total Value Locked
-                </p>
+                <p className="text-3xl font-bold text-primary">500K+</p>
+                <p className="text-sm text-muted-foreground">Items Packed</p>
               </div>
               <div className="text-center">
-                <p className="text-3xl font-bold text-primary">1M+</p>
-                <p className="text-sm text-muted-foreground">Active Wallets</p>
+                <p className="text-3xl font-bold text-primary">50K+</p>
+                <p className="text-sm text-muted-foreground">Active Groups</p>
               </div>
             </div>
           </motion.div>
         </motion.div>
 
-        {/* Right Column - App Mockup */}
+        {/* Right Column - App Features Showcase */}
         <motion.div
           className="relative flex justify-center"
           initial={{ opacity: 0, scale: 0.95 }}
@@ -105,106 +106,70 @@ export default function HeroSection() {
         >
           <div className="relative w-full max-w-md">
             <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 to-transparent rounded-3xl transform rotate-3" />
-            <svg
-              viewBox="0 0 400 400"
-              className="w-full h-auto relative z-10"
-              style={{ maxHeight: "500px" }}
-            >
-              {/* Modern crypto app wireframe illustration */}
-              <rect
-                x="100"
-                y="50"
-                width="200"
-                height="300"
-                rx="20"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              />
-              {/* Price Chart Area */}
-              <path
-                d="M120 200 L140 180 L160 190 L180 150 L200 170 L220 140 L240 160 L260 130"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              />
-              {/* Token Pairs */}
-              <rect
-                x="120"
-                y="80"
-                width="160"
-                height="40"
-                rx="5"
-                fill="currentColor"
-                fillOpacity="0.1"
-                stroke="currentColor"
-                strokeWidth="1"
-              />
-              {/* Trading Stats */}
-              <rect
-                x="120"
-                y="240"
-                width="70"
-                height="40"
-                rx="5"
-                fill="currentColor"
-                fillOpacity="0.1"
-                stroke="currentColor"
-                strokeWidth="1"
-              />
-              <rect
-                x="210"
-                y="240"
-                width="70"
-                height="40"
-                rx="5"
-                fill="currentColor"
-                fillOpacity="0.1"
-                stroke="currentColor"
-                strokeWidth="1"
-              />
-            </svg>
-
-            {/* Floating elements */}
-            <motion.div
-              className="absolute top-1/4 -right-16 sm:-right-24 bg-card p-6 rounded-xl shadow-lg border"
-              animate={{ y: [0, -10, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <div className="text-sm font-medium">Live Trading</div>
-              <div className="mt-2 space-y-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded-full bg-green-500"></div>
-                  <div className="text-sm">ETH/USDT +3.2%</div>
+            <div className="relative z-10 bg-card border shadow-xl rounded-3xl p-6 space-y-6">
+              {/* Feature Cards */}
+              <motion.div
+                className="bg-background p-4 rounded-lg border shadow-sm"
+                animate={{ y: [0, -10, 0] }}
+                transition={{
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+              >
+                <div className="flex items-center gap-3">
+                  <Users className="h-8 w-8 text-primary" />
+                  <div>
+                    <h3 className="font-semibold">Team Collaboration</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Assign roles and tasks
+                    </p>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded-full bg-blue-500"></div>
-                  <div className="text-sm">BTC/USDT +1.8%</div>
-                </div>
-              </div>
-            </motion.div>
+              </motion.div>
 
-            <motion.div
-              className="absolute bottom-1/3 -left-16 sm:-left-24 bg-card p-6 rounded-xl shadow-lg border"
-              animate={{ y: [0, 10, 0] }}
-              transition={{
-                duration: 4,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: 1,
-              }}
-            >
-              <div className="text-sm font-medium">Market Cap</div>
-              <div className="mt-2 flex h-8 gap-1.5 items-end">
-                {[4, 6, 8, 5, 7].map((height, i) => (
-                  <div
-                    key={i}
-                    className="w-2 bg-primary/60 rounded-t"
-                    style={{ height: `${height * 4}px` }}
-                  />
-                ))}
-              </div>
-            </motion.div>
+              <motion.div
+                className="bg-background p-4 rounded-lg border shadow-sm"
+                animate={{ y: [0, -10, 0] }}
+                transition={{
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: 0.5,
+                }}
+              >
+                <div className="flex items-center gap-3">
+                  <ListChecks className="h-8 w-8 text-primary" />
+                  <div>
+                    <h3 className="font-semibold">Smart Checklists</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Track packing progress
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+
+              <motion.div
+                className="bg-background p-4 rounded-lg border shadow-sm"
+                animate={{ y: [0, -10, 0] }}
+                transition={{
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: 1,
+                }}
+              >
+                <div className="flex items-center gap-3">
+                  <Clock className="h-8 w-8 text-primary" />
+                  <div>
+                    <h3 className="font-semibold">Real-time Updates</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Stay in sync with your team
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
           </div>
         </motion.div>
       </div>

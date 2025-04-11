@@ -4,27 +4,35 @@ import { Star } from "lucide-react";
 const testimonials = [
   {
     quote:
-      "Scaffold has completely transformed how we manage our HR operations. The platform is intuitive and our employees love using it.",
-    author: "Sarah Johnson",
-    position: "HR Director",
-    company: "TechCorp Inc.",
+      "PackPal made organizing our company retreat so much easier! The role-based access meant everyone knew exactly what they were responsible for packing.",
+    author: "Alex Thompson",
+    position: "Event Coordinator",
+    company: "StartupHub",
     rating: 5,
   },
   {
     quote:
-      "The analytics features have given us invaluable insights into our workforce dynamics. It's been a game-changer for our decision-making.",
-    author: "Michael Chen",
-    position: "Operations Manager",
-    company: "Global Solutions Ltd.",
+      "As a tour guide, I use PackPal for all my group trips. The real-time tracking helps ensure nothing gets left behind, and the conflict detection is a lifesaver!",
+    author: "Maria Garcia",
+    position: "Senior Tour Guide",
+    company: "Adventure Tours",
     rating: 5,
   },
   {
     quote:
-      "Implementation was smooth and the support team was incredibly helpful. We've seen a significant improvement in employee engagement.",
-    author: "Emma Rodriguez",
-    position: "People Manager",
-    company: "Innovate Co.",
-    rating: 4,
+      "We used PackPal for our destination wedding, and it was fantastic! Our wedding party stayed organized, and the collaborative features made packing stress-free.",
+    author: "James & Emily Chen",
+    position: "Newlyweds",
+    company: "Wedding Party of 20",
+    rating: 5,
+  },
+  {
+    quote:
+      "The smart checklists and status tracking have revolutionized how our theater company manages props and costumes for touring shows.",
+    author: "David Williams",
+    position: "Production Manager",
+    company: "City Theater Company",
+    rating: 5,
   },
 ];
 
@@ -32,16 +40,13 @@ export default function TestimonialsSection() {
   return (
     <section className="container mx-auto py-24 px-4 bg-secondary/30">
       <div className="text-center mb-16">
-        <h2 className="text-3xl font-bold mb-4">
-          Trusted by leading companies
-        </h2>
+        <h2 className="text-3xl font-bold mb-4">Loved by Groups Everywhere</h2>
         <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-          See what our customers have to say about their experience with
-          Scaffold.
+          See how PackPal is helping teams stay organized and stress-free.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {testimonials.map((testimonial, index) => (
           <Card key={index} className="bg-background">
             <CardContent className="pt-6">
