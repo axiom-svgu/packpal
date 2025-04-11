@@ -7,6 +7,18 @@ import { db } from "../database";
 import { groupMembers } from "../database/schema";
 import { and, eq } from "drizzle-orm";
 
+// Extend Express Request type to include user property
+declare global {
+  namespace Express {
+    interface Request {
+      user?: {
+        id: string;
+        email: string;
+      };
+    }
+  }
+}
+
 // Define role hierarchy
 const roleHierarchy: Record<GroupRole, number> = {
   owner: 4,
