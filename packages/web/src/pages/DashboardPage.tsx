@@ -8,11 +8,12 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import {
-  DollarSign,
   Users,
   Package,
-  ShoppingCart,
-  TrendingUp,
+  CheckCircle,
+  ClipboardList,
+  Truck,
+  Box,
 } from "lucide-react";
 
 export default function DashboardPage() {
@@ -21,8 +22,8 @@ export default function DashboardPage() {
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
         <div className="flex items-center space-x-2">
-          <DollarSign className="h-4 w-4 text-muted-foreground" />
-          <span className="text-lg font-semibold">Total Savings: $2,450</span>
+          <Package className="h-4 w-4 text-muted-foreground" />
+          <span className="text-lg font-semibold">Total Items: 153</span>
         </div>
       </div>
       <Tabs defaultValue="overview" className="space-y-4">
@@ -52,7 +53,7 @@ export default function DashboardPage() {
                 <CardTitle className="text-sm font-medium">
                   Total Lists
                 </CardTitle>
-                <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+                <ClipboardList className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">34</div>
@@ -62,28 +63,28 @@ export default function DashboardPage() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Items Purchased
+                  Items Packed
                 </CardTitle>
-                <Package className="h-4 w-4 text-muted-foreground" />
+                <CheckCircle className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">245</div>
+                <div className="text-2xl font-bold">92</div>
                 <p className="text-xs text-muted-foreground">
-                  +23% from last month
+                  37% of total items
                 </p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Group Savings
+                  Items Delivered
                 </CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                <Truck className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">$1,234</div>
+                <div className="text-2xl font-bold">61</div>
                 <p className="text-xs text-muted-foreground">
-                  +15% from last month
+                  25% of total items
                 </p>
               </CardContent>
             </Card>
@@ -93,29 +94,29 @@ export default function DashboardPage() {
               <CardHeader>
                 <CardTitle>Recent Activity</CardTitle>
                 <CardDescription>
-                  Your group's latest transactions and updates
+                  Your group's latest packing activity and updates
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-4">
                   {[
                     {
-                      title: "Grocery List Updated",
-                      group: "Family Group",
+                      title: "Camping Checklist Updated",
+                      group: "Hiking Group",
                       time: "2 hours ago",
-                      icon: ShoppingCart,
+                      icon: ClipboardList,
                     },
                     {
                       title: "New Member Joined",
-                      group: "Roommates",
+                      group: "Festival Squad",
                       time: "5 hours ago",
                       icon: Users,
                     },
                     {
-                      title: "Bulk Purchase Completed",
-                      group: "Neighborhood Group",
+                      title: "Items Packed for Road Trip",
+                      group: "Family Vacation",
                       time: "1 day ago",
-                      icon: Package,
+                      icon: Box,
                     },
                   ].map((item, index) => (
                     <div key={index} className="flex items-center space-x-4">
@@ -138,9 +139,9 @@ export default function DashboardPage() {
             </Card>
             <Card className="col-span-3">
               <CardHeader>
-                <CardTitle>Group Goals Progress</CardTitle>
+                <CardTitle>Packing Progress</CardTitle>
                 <CardDescription>
-                  Track your group savings goals
+                  Track your group packing progress
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-8">
@@ -148,7 +149,7 @@ export default function DashboardPage() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <span className="text-sm font-medium">
-                        Monthly Savings Target
+                        Camping Trip Items
                       </span>
                     </div>
                     <span className="text-sm text-muted-foreground">78%</span>
@@ -159,7 +160,7 @@ export default function DashboardPage() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <span className="text-sm font-medium">
-                        Bulk Purchase Goal
+                        Festival Preparation
                       </span>
                     </div>
                     <span className="text-sm text-muted-foreground">45%</span>
@@ -170,7 +171,7 @@ export default function DashboardPage() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <span className="text-sm font-medium">
-                        Group Member Target
+                        Road Trip Essentials
                       </span>
                     </div>
                     <span className="text-sm text-muted-foreground">90%</span>
