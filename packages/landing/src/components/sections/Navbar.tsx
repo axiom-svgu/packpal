@@ -48,7 +48,7 @@ export default function Navbar() {
       <div className="flex items-center gap-4">
         <Button
           onClick={() =>
-            (window.location.href = "https://packpal-app.axiomclub.tech/signin")
+            (window.location.href = "https://packpal-app.axiomclub.tech/login")
           }
         >
           Sign Up
