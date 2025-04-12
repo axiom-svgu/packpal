@@ -7,7 +7,7 @@ import {
   listItemCreationSchema,
   listItemUpdateSchema,
   listItemAssignmentSchema,
-} from "../database/lists-schema";
+} from "../database/schema";
 import { groupMembers } from "../database/schema";
 import { and, eq, ne } from "drizzle-orm";
 

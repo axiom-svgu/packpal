@@ -260,6 +260,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user } = useAuth();
   const { groupRole } = useGroupStore();
 
+  console.log(groupRole);
+
   const navigationItems = groupRole ? roleBasedNavigation[groupRole] : [];
 
   if (!user) {

@@ -1,41 +1,44 @@
 import { Building2, Plus } from "lucide-react";
-
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarContent,
 } from "@/components/ui/sidebar";
-import { useGroupStore } from "@/lib/group-store";
+import { useGroupStore, type Group } from "@/lib/group-store";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { get } from "@/services/HttpHelper";
+
+interface ApiResponse<T> {
+  data: T;
+  success: boolean;
+  message: string;
+}
 
 export function GroupSwitcher() {
-  const { groups, currentGroup, setCurrentGroup } = useGroupStore();
+  const { groups, currentGroup, setCurrentGroup, setGroups } = useGroupStore();
 
-  // When no groups exist, show a create group button
-  if (!currentGroup && groups.length === 0) {
-    return (
-      <div className="p-4">
-        <Button
-          asChild
-          variant="outline"
-          className="w-full justify-start gap-2"
-        >
-          <Link to="/groups">
-            <Plus className="h-4 w-4" />
-            Create Group
-          </Link>
-        </Button>
-      </div>
-    );
-  }
+  useEffect(() => {
+    const fetchGroups = async () => {
+      try {
+        const response = await get<ApiResponse<Group[]>>("/groups");
+        if (response.data?.data) {
+          setGroups(response.data.data);
+          // Set first group as current if none selected
+          if (!currentGroup && response.data.data.length > 0) {
+            setCurrentGroup(response.data.data[0]);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching groups:", error);
+      }
+    };
 
-  if (!currentGroup) {
-    return null;
-  }
+    fetchGroups();
+  }, []);
 
   return (
     <SidebarMenu>
@@ -49,7 +52,7 @@ export function GroupSwitcher() {
           </div>
           <div className="grid flex-1 text-left text-sm leading-tight">
             <span className="truncate font-semibold text-lg">
-              {currentGroup.name}
+              {currentGroup?.name || "Select Group"}
             </span>
           </div>
         </SidebarMenuButton>
@@ -62,7 +65,7 @@ export function GroupSwitcher() {
                   onClick={() => setCurrentGroup(group)}
                   className={cn(
                     "w-full rounded-md p-2 text-left text-sm transition-colors hover:bg-accent",
-                    currentGroup.id === group.id && "bg-accent"
+                    currentGroup?.id === group.id && "bg-accent"
                   )}
                 >
                   <div className="flex items-center gap-2">
@@ -71,16 +74,13 @@ export function GroupSwitcher() {
                   </div>
                 </button>
               ))}
-              <Button
-                variant="ghost"
-                className="w-full justify-start gap-2 mt-2"
-                asChild
+              <Link
+                to="/create-group"
+                className="flex w-full items-center gap-2 rounded-md p-2 text-sm transition-colors hover:bg-accent"
               >
-                <Link to="/create-group">
-                  <Plus className="h-4 w-4" />
-                  Create New Group
-                </Link>
-              </Button>
+                <Plus className="h-4 w-4" />
+                Create New Group
+              </Link>
             </div>
           </ScrollArea>
         </SidebarContent>
