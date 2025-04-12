@@ -24,7 +24,7 @@ const client = postgres(dbConnectionString, {
   max: 1,
   idle_timeout: 20,
   connect_timeout: 10,
-  ssl: true,
+  ssl: false,
   connection: {
     application_name: "packpal-api",
   },

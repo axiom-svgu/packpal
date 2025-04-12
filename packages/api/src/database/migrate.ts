@@ -8,12 +8,11 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 // Database connection string for Neon PostgreSQL
-const connectionString =
-  `postgres://${process.env.DB_USER || "postgres"}:${
-    process.env.DB_PASS || "postgres"
-  }@${process.env.DB_HOST || "localhost"}:${process.env.DB_PORT || "5432"}/${
-    process.env.DB_NAME || "postgres"
-  }`;
+const connectionString = `postgres://${process.env.DB_USER || "postgres"}:${
+  process.env.DB_PASS || "postgres"
+}@${process.env.DB_HOST || "localhost"}:${process.env.DB_PORT || "5432"}/${
+  process.env.DB_NAME || "postgres"
+}`;
 
 console.log("Migration connecting to database:", {
   host: process.env.DB_HOST,
@@ -26,8 +25,9 @@ const client = postgres(connectionString, {
   max: 1,
   connect_timeout: 10,
   idle_timeout: 20,
-  ssl: {
-    rejectUnauthorized: false,
+  ssl: false,
+  connection: {
+    application_name: "packpal-api",
   },
   prepare: false,
 });
