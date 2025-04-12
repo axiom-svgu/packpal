@@ -54,7 +54,11 @@ router.get(
       const result = await db.query.itemAssignments.findMany({
         where: eq(itemAssignments.assignedTo, userId),
         with: {
-          item: true,
+          item: {
+            with: {
+              category: true,
+            },
+          },
           assignedBy: true,
         },
       });
@@ -90,6 +94,41 @@ router.post("/", authMiddleware, requireRole("admin"), async (req, res) => {
 });
 
 // Update an assignment status
+router.put(
+  "/:id/status",
+  authMiddleware,
+  requireRole("member"),
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { status } = z
+        .object({
+          status: z.enum(["to_pack", "packed", "delivered"]),
+        })
+        .parse(req.body);
+
+      const assignment = await db
+        .update(itemAssignments)
+        .set({ status })
+        .where(eq(itemAssignments.id, id))
+        .returning();
+
+      if (assignment.length === 0) {
+        return res.status(404).json({ error: "Assignment not found" });
+      }
+      res.json(assignment[0]);
+    } catch (error) {
+      console.error("Error updating assignment status:", error);
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ error: error.errors });
+      } else {
+        res.status(500).json({ error: "Failed to update assignment status" });
+      }
+    }
+  }
+);
+
+// Alias for PATCH requests
 router.patch(
   "/:id/status",
   authMiddleware,

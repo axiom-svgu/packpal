@@ -18,11 +18,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   BarChart,
   Check,
-  ChevronRight,
   Clipboard,
   ClipboardCheck,
   Clock,
-  Edit,
   FileBox,
   Gift,
   Group,
@@ -285,10 +283,6 @@ export default function ProfilePage() {
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" className="h-9">
-            <Edit className="mr-2 h-4 w-4" />
-            Edit Profile
-          </Button>
           <Button
             size="sm"
             className="h-9"
@@ -324,7 +318,7 @@ export default function ProfilePage() {
         <TabsContent value="overview" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <Card className="overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-amber-100 to-amber-50 pb-2">
+              <CardHeader className="flex items-center py-2 bg-gradient-to-r from-blue-100 to-blue-50">
                 <CardTitle className="flex items-center text-lg font-medium">
                   <PackageOpen className="mr-2 h-5 w-5 text-amber-600" />
                   To Pack
@@ -341,7 +335,7 @@ export default function ProfilePage() {
             </Card>
 
             <Card className="overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-green-100 to-green-50 pb-2">
+              <CardHeader className="flex items-center py-2 bg-gradient-to-r from-blue-100 to-blue-50">
                 <CardTitle className="flex items-center text-lg font-medium">
                   <PackageCheck className="mr-2 h-5 w-5 text-green-600" />
                   Packed
@@ -358,7 +352,7 @@ export default function ProfilePage() {
             </Card>
 
             <Card className="overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-blue-100 to-blue-50 pb-2">
+              <CardHeader className="flex items-center py-2 bg-gradient-to-r from-blue-100 to-blue-50">
                 <CardTitle className="flex items-center text-lg font-medium">
                   <TruckIcon className="mr-2 h-5 w-5 text-blue-600" />
                   Delivered

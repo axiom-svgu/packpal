@@ -15,6 +15,7 @@ import {
   Box,
   CheckCircle,
   Truck,
+  KanbanSquare,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -45,19 +46,9 @@ const roleBasedNavigation = {
       icon: Users,
     },
     {
-      title: "To Pack",
-      url: "/to-pack",
-      icon: Box,
-    },
-    {
-      title: "Packed",
-      url: "/packed",
-      icon: CheckCircle,
-    },
-    {
-      title: "Delivered",
-      url: "/delivered",
-      icon: Truck,
+      title: "Item Tracking",
+      url: "/kanban",
+      icon: KanbanSquare,
     },
     {
       title: "Packing Lists",
@@ -103,19 +94,9 @@ const roleBasedNavigation = {
       icon: Users,
     },
     {
-      title: "To Pack",
-      url: "/to-pack",
-      icon: Box,
-    },
-    {
-      title: "Packed",
-      url: "/packed",
-      icon: CheckCircle,
-    },
-    {
-      title: "Delivered",
-      url: "/delivered",
-      icon: Truck,
+      title: "Item Tracking",
+      url: "/kanban",
+      icon: KanbanSquare,
     },
     {
       title: "Packing Lists",
@@ -161,19 +142,9 @@ const roleBasedNavigation = {
       icon: Users,
     },
     {
-      title: "To Pack",
-      url: "/to-pack",
-      icon: Box,
-    },
-    {
-      title: "Packed",
-      url: "/packed",
-      icon: CheckCircle,
-    },
-    {
-      title: "Delivered",
-      url: "/delivered",
-      icon: Truck,
+      title: "Item Tracking",
+      url: "/kanban",
+      icon: KanbanSquare,
     },
     {
       title: "Packing Lists",
@@ -214,19 +185,9 @@ const roleBasedNavigation = {
       icon: Users,
     },
     {
-      title: "To Pack",
-      url: "/to-pack",
-      icon: Box,
-    },
-    {
-      title: "Packed",
-      url: "/packed",
-      icon: CheckCircle,
-    },
-    {
-      title: "Delivered",
-      url: "/delivered",
-      icon: Truck,
+      title: "Item Tracking",
+      url: "/kanban",
+      icon: KanbanSquare,
     },
     {
       title: "Packing Lists",

@@ -44,12 +44,18 @@ const pages = [
   },
   { title: "Members", url: "/members", keywords: ["users", "team", "people"] },
   {
-    title: "To Pack",
-    url: "/to-pack",
-    keywords: ["items", "packing", "prepare"],
+    title: "Item Tracking",
+    url: "/kanban",
+    keywords: [
+      "items",
+      "packing",
+      "kanban",
+      "board",
+      "to pack",
+      "packed",
+      "delivered",
+    ],
   },
-  { title: "Packed", url: "/packed", keywords: ["ready", "completed", "done"] },
-  { title: "Delivered", url: "/delivered", keywords: ["shipped", "sent"] },
   {
     title: "Packing Lists",
     url: "/packing-lists",

@@ -10,9 +10,7 @@ import { ThemeProvider } from "./components/theme-provider";
 import AuthPage from "./pages/AuthPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import MembersPage from "./pages/MembersPage";
-import ToPackPage from "./pages/ToPackPage";
-import PackedPage from "./pages/PackedPage";
-import DeliveredPage from "./pages/DeliveredPage";
+import KanbanPage from "./pages/KanbanPage";
 import PackingListsPage from "./pages/PackingListsPage";
 import AssignItemsPage from "./pages/AssignItemsPage";
 import CreateEventPage from "./pages/CreateEventPage";
@@ -38,16 +36,21 @@ const protectedRoutes = [
     element: <MembersPage />,
   },
   {
+    path: "/kanban",
+    element: <KanbanPage />,
+  },
+  // Redirects from old routes to Kanban board
+  {
     path: "/to-pack",
-    element: <ToPackPage />,
+    element: <KanbanPage />,
   },
   {
     path: "/packed",
-    element: <PackedPage />,
+    element: <KanbanPage />,
   },
   {
     path: "/delivered",
-    element: <DeliveredPage />,
+    element: <KanbanPage />,
   },
   {
     path: "/packing-lists",
