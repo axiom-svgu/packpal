@@ -9,7 +9,6 @@ dotenv.config();
 
 // Database connection string for Neon PostgreSQL
 const connectionString =
-  process.env.DATABASE_URL ||
   `postgres://${process.env.DB_USER || "postgres"}:${
     process.env.DB_PASS || "postgres"
   }@${process.env.DB_HOST || "localhost"}:${process.env.DB_PORT || "5432"}/${
