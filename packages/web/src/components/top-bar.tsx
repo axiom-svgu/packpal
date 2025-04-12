@@ -108,7 +108,11 @@ export function TopBar() {
   // Handle search open keyboard shortcut
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+      // Support both Ctrl+Enter and Cmd+K/Ctrl+K shortcuts
+      if (
+        (e.ctrlKey && e.key === "Enter") ||
+        ((e.metaKey || e.ctrlKey) && e.key === "k")
+      ) {
         e.preventDefault();
         setSearchOpen(true);
       }
@@ -138,11 +142,10 @@ export function TopBar() {
       <Popover open={searchOpen} onOpenChange={setSearchOpen}>
         <PopoverTrigger asChild>
           <div className="w-full relative">
-            <Search className="absolute left-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
             <Input
               ref={searchInputRef}
               type="search"
-              placeholder="Search (⌘+K)..."
+              placeholder="Search (Ctrl+K or Ctrl+Enter)..."
               className="pl-8 rounded-full bg-muted/50 border-none focus-visible:ring-1"
               onClick={() => setSearchOpen(true)}
               readOnly
@@ -201,7 +204,7 @@ export function TopBar() {
   );
   return (
     <div className="w-full flex justify-center bg-white shadow-sm">
-      <header className="w-full max-w-7xl flex h-16 shrink-0 items-center justify-between px-4 py-2">
+      <header className="w-full flex h-16 shrink-0 items-center justify-between px-4 py-2">
         <div className="flex items-center gap-4">
           <div className="md:hidden">
             <Sheet>
