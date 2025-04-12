@@ -9,6 +9,8 @@ import {
   getGroupMembers,
   removeMember,
   leaveGroup,
+  transferOwnership,
+  deleteGroup,
 } from "../controllers/group";
 
 const router = Router();
@@ -17,6 +19,7 @@ const router = Router();
 router.get("/", authMiddleware, getGroups);
 router.get("/:groupId", authMiddleware, getGroupById);
 router.post("/", authMiddleware, createGroup);
+router.delete("/:groupId", authMiddleware, deleteGroup);
 
 // Group member management routes
 router.get("/:groupId/members", authMiddleware, getGroupMembers);
@@ -28,5 +31,10 @@ router.put(
 );
 router.delete("/:groupId/members/:memberId", authMiddleware, removeMember);
 router.delete("/:groupId/leave", authMiddleware, leaveGroup);
+router.put(
+  "/:groupId/transfer-ownership/:newOwnerId",
+  authMiddleware,
+  transferOwnership
+);
 
 export default router;

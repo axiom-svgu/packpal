@@ -8,6 +8,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from "@/components/ui/card";
 import {
   Table,
@@ -46,6 +47,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { get, post, put, del } from "@/services/HttpHelper";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Trash2, Crown, LogOut, UserPlus } from "lucide-react";
 
 interface ApiResponse<T> {
   data: T;
@@ -82,7 +84,10 @@ export default function GroupDetailsPage() {
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
   const [isRemoveDialogOpen, setIsRemoveDialogOpen] = useState(false);
   const [isLeaveDialogOpen, setIsLeaveDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isTransferDialogOpen, setIsTransferDialogOpen] = useState(false);
   const [memberToRemove, setMemberToRemove] = useState<string | null>(null);
+  const [newOwnerId, setNewOwnerId] = useState<string>("");
   const [newMember, setNewMember] = useState({
     email: "",
     role: "member" as const,
@@ -218,6 +223,49 @@ export default function GroupDetailsPage() {
     }
   };
 
+  const handleDeleteGroup = async () => {
+    try {
+      const response = await del<ApiResponse<void>>(`/groups/${groupId}`);
+
+      if (response.error) {
+        setError(response.error);
+        return;
+      }
+
+      // Redirect to groups page after deletion
+      window.location.href = "/groups";
+    } catch (error) {
+      console.error("Error deleting group:", error);
+      setError("Failed to delete the group. Please try again.");
+    }
+  };
+
+  const handleTransferOwnership = async () => {
+    if (!newOwnerId) {
+      setError("Please select a new owner");
+      return;
+    }
+
+    try {
+      const response = await put<ApiResponse<void>>(
+        `/groups/${groupId}/transfer-ownership/${newOwnerId}`,
+        {}
+      );
+
+      if (response.error) {
+        setError(response.error);
+        return;
+      }
+
+      setError(null);
+      setIsTransferDialogOpen(false);
+      fetchGroupDetails();
+    } catch (error) {
+      console.error("Error transferring ownership:", error);
+      setError("Failed to transfer ownership. Please try again.");
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="container mx-auto py-8">
@@ -257,6 +305,10 @@ export default function GroupDetailsPage() {
   const userMembership = members.find((m) => m.userId === user?.id);
   const canManageMembers =
     userMembership?.role === "owner" || userMembership?.role === "admin";
+  const isOwner = userMembership?.role === "owner";
+  const possibleNewOwners = members.filter(
+    (m) => m.userId !== user?.id && (m.role === "admin" || m.role === "member")
+  );
 
   return (
     <div className="container mx-auto py-8">
@@ -269,8 +321,32 @@ export default function GroupDetailsPage() {
 
       <Card className="mb-8">
         <CardHeader>
-          <CardTitle>{group.name}</CardTitle>
-          <CardDescription>{group.description}</CardDescription>
+          <div className="flex justify-between">
+            <div>
+              <CardTitle>{group.name}</CardTitle>
+              <CardDescription>{group.description}</CardDescription>
+            </div>
+            {isOwner && (
+              <div className="flex space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsTransferDialogOpen(true)}
+                >
+                  <Crown className="h-4 w-4 mr-2" />
+                  Transfer Ownership
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => setIsDeleteDialogOpen(true)}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete Group
+                </Button>
+              </div>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           <div className="flex justify-between items-center">
@@ -283,6 +359,7 @@ export default function GroupDetailsPage() {
                 onClick={() => setIsLeaveDialogOpen(true)}
                 className="text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600"
               >
+                <LogOut className="h-4 w-4 mr-2" />
                 Leave Group
               </Button>
             )}
@@ -298,7 +375,10 @@ export default function GroupDetailsPage() {
             onOpenChange={setIsInviteDialogOpen}
           >
             <DialogTrigger asChild>
-              <Button>Add Member</Button>
+              <Button>
+                <UserPlus className="h-4 w-4 mr-2" />
+                Add Member
+              </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
@@ -393,7 +473,12 @@ export default function GroupDetailsPage() {
                           </SelectContent>
                         </Select>
                       ) : (
-                        member.role
+                        <div className="flex items-center">
+                          {member.role}
+                          {member.role === "owner" && (
+                            <Crown className="h-4 w-4 ml-2 text-amber-500" />
+                          )}
+                        </div>
                       )}
                     </TableCell>
                     {canManageMembers && member.role !== "owner" && (
@@ -455,6 +540,74 @@ export default function GroupDetailsPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <AlertDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this group?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete this
+              group and remove all members from it.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteGroup}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Delete Group
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <Dialog
+        open={isTransferDialogOpen}
+        onOpenChange={setIsTransferDialogOpen}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Transfer Ownership</DialogTitle>
+            <DialogDescription>
+              Transfer group ownership to another member. You will be demoted to
+              an admin.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            {possibleNewOwners.length === 0 ? (
+              <p className="text-amber-600">
+                There are no other members who can become owners. Add more
+                members first.
+              </p>
+            ) : (
+              <Select value={newOwnerId} onValueChange={setNewOwnerId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a new owner" />
+                </SelectTrigger>
+                <SelectContent>
+                  {possibleNewOwners.map((member) => (
+                    <SelectItem key={member.userId} value={member.userId}>
+                      {member.user.name} ({member.user.email})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </div>
+          <DialogFooter>
+            <Button
+              onClick={handleTransferOwnership}
+              disabled={!newOwnerId || possibleNewOwners.length === 0}
+            >
+              Transfer Ownership
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

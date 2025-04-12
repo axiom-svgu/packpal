@@ -508,3 +508,131 @@ export const leaveGroup = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const transferOwnership = async (req: Request, res: Response) => {
+  try {
+    const { groupId, newOwnerId } = req.params;
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({
+        message: "Authentication required",
+        success: false,
+      });
+    }
+
+    // Check if the current user is the owner
+    const currentOwnership = await db.query.groupMembers.findFirst({
+      where: and(
+        eq(groupMembers.groupId, groupId),
+        eq(groupMembers.userId, userId),
+        eq(groupMembers.role, "owner")
+      ),
+    });
+
+    if (!currentOwnership) {
+      return res.status(403).json({
+        message: "Only the group owner can transfer ownership",
+        success: false,
+      });
+    }
+
+    // Check if the new owner is a member of the group
+    const newOwnerMembership = await db.query.groupMembers.findFirst({
+      where: and(
+        eq(groupMembers.groupId, groupId),
+        eq(groupMembers.userId, newOwnerId)
+      ),
+    });
+
+    if (!newOwnerMembership) {
+      return res.status(404).json({
+        message: "The specified user is not a member of this group",
+        success: false,
+      });
+    }
+
+    // Begin a transaction to update both roles
+    await db.transaction(async (tx) => {
+      // Demote current owner to admin
+      await tx
+        .update(groupMembers)
+        .set({ role: "admin" })
+        .where(
+          and(
+            eq(groupMembers.groupId, groupId),
+            eq(groupMembers.userId, userId)
+          )
+        );
+
+      // Promote new owner
+      await tx
+        .update(groupMembers)
+        .set({ role: "owner" })
+        .where(
+          and(
+            eq(groupMembers.groupId, groupId),
+            eq(groupMembers.userId, newOwnerId)
+          )
+        );
+    });
+
+    return res.status(200).json({
+      message: "Group ownership transferred successfully",
+      success: true,
+    });
+  } catch (error) {
+    console.error("Error transferring ownership:", error);
+    return res.status(500).json({
+      message: "Failed to transfer ownership",
+      success: false,
+    });
+  }
+};
+
+export const deleteGroup = async (req: Request, res: Response) => {
+  try {
+    const { groupId } = req.params;
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({
+        message: "Authentication required",
+        success: false,
+      });
+    }
+
+    // Check if the user is the owner
+    const ownership = await db.query.groupMembers.findFirst({
+      where: and(
+        eq(groupMembers.groupId, groupId),
+        eq(groupMembers.userId, userId),
+        eq(groupMembers.role, "owner")
+      ),
+    });
+
+    if (!ownership) {
+      return res.status(403).json({
+        message: "Only the group owner can delete the group",
+        success: false,
+      });
+    }
+
+    // Delete all members first (to handle foreign key constraints)
+    await db.delete(groupMembers).where(eq(groupMembers.groupId, groupId));
+
+    // Delete the group
+    await db.delete(groups).where(eq(groups.id, groupId));
+
+    return res.status(200).json({
+      message: "Group deleted successfully",
+      success: true,
+    });
+  } catch (error) {
+    console.error("Error deleting group:", error);
+    return res.status(500).json({
+      message: "Failed to delete group",
+      success: false,
+    });
+  }
+};
