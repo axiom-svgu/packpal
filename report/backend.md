@@ -4,6 +4,7 @@
 The API backend is a Node.js application built with Express.js, using TypeScript and modern backend technologies. It serves as the backend service for the PackPal application, providing RESTful endpoints and database interactions.
 
 ## Tech Stack
+
 - **Runtime**: Node.js
 - **Framework**: Express.js 4.19.2
 - **Database**: PostgreSQL with Drizzle ORM
