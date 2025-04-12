@@ -8,6 +8,7 @@ import {
   boolean,
   index,
 } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
@@ -122,6 +123,48 @@ export const itemAssignments = pgTable("item_assignment", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
+
+// Define relations after all tables are defined
+// User relations
+export const usersRelations = relations(users, ({ many }) => ({
+  assignedItems: many(itemAssignments, { relationName: "userAssignedItems" }),
+  assignedByItems: many(itemAssignments, {
+    relationName: "userAssignedByItems",
+  }),
+}));
+
+// Item relations
+export const itemsRelations = relations(items, ({ many }) => ({
+  assignments: many(itemAssignments),
+}));
+
+// Item assignment relations
+export const itemAssignmentsRelations = relations(
+  itemAssignments,
+  ({ one }) => ({
+    item: one(items, {
+      fields: [itemAssignments.itemId],
+      references: [items.id],
+    }),
+    assignedTo: one(users, {
+      fields: [itemAssignments.assignedTo],
+      references: [users.id],
+      relationName: "userAssignedItems",
+    }),
+    assignedBy: one(users, {
+      fields: [itemAssignments.assignedBy],
+      references: [users.id],
+      relationName: "userAssignedByItems",
+    }),
+  })
+);
+
+// Groups table
+export const groupsRelations = relations(groups, ({ many }) => ({
+  members: many(groupMembers),
+  categories: many(categories),
+  items: many(items),
+}));
 
 // ============================================================================
 // List Related Tables
