@@ -1,4 +1,4 @@
-import { get, put, del } from "./HttpHelper";
+import { get, put, del, post } from "./HttpHelper";
 import { ApiResponse } from "./types";
 
 export interface Member {
@@ -28,6 +28,13 @@ export interface UpdateMemberRoleRequest {
   role: "admin" | "member" | "viewer";
 }
 
+export interface AddMemberRequest {
+  name: string;
+  email: string;
+  role: "admin" | "member" | "viewer";
+  groupId?: string;
+}
+
 export const getMembers = async (groupId?: string) => {
   const endpoint = groupId ? `/members?groupId=${groupId}` : "/members";
   return get<ApiResponse<Member[]>>(endpoint);
@@ -46,4 +53,8 @@ export const updateMemberRole = async (
 
 export const removeMember = async (memberId: string) => {
   return del<ApiResponse<null>>(`/members/${memberId}`);
+};
+
+export const addMember = async (data: AddMemberRequest) => {
+  return post<ApiResponse<Member>>("/members", data);
 };

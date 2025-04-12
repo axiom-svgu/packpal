@@ -68,10 +68,17 @@ import {
   getMembers,
   updateMemberRole,
   removeMember,
+  addMember,
 } from "@/services/MemberService";
 import { get } from "@/services/HttpHelper";
-import { Member, UpdateMemberRoleRequest } from "@/services/MemberService";
+import {
+  Member,
+  UpdateMemberRoleRequest,
+  AddMemberRequest,
+} from "@/services/MemberService";
 import { ApiResponse } from "@/services/types";
+import { Label } from "@/components/ui/label";
+import { FormEvent } from "react";
 
 interface Group {
   id: string;
@@ -97,6 +104,13 @@ export default function MembersPage() {
   const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
   const [isRemoveDialogOpen, setIsRemoveDialogOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isAddMemberDialogOpen, setIsAddMemberDialogOpen] = useState(false);
+  const [newMember, setNewMember] = useState({
+    name: "",
+    email: "",
+    role: "member" as "admin" | "member" | "viewer",
+    groupId: "",
+  });
 
   // Fetch members data
   useEffect(() => {
@@ -310,6 +324,62 @@ export default function MembersPage() {
     }
   };
 
+  // Handle add member
+  const handleAddMember = async (e: FormEvent) => {
+    e.preventDefault();
+
+    try {
+      setIsProcessing(true);
+
+      const request: AddMemberRequest = {
+        name: newMember.name,
+        email: newMember.email,
+        role: newMember.role,
+        groupId:
+          newMember.groupId ||
+          (selectedGroup !== "all" ? selectedGroup : undefined),
+      };
+
+      const response = await addMember(request);
+
+      if (response.error) {
+        toast.error("Error", {
+          description: response.error,
+        });
+      } else if (response.data?.success) {
+        // Add the new member to the list
+        if (response.data.data) {
+          setMembers([...members, response.data.data]);
+        }
+
+        toast.success("Member added", {
+          description: `${newMember.name} has been added as a ${newMember.role}`,
+        });
+
+        // Reset form
+        setNewMember({
+          name: "",
+          email: "",
+          role: "member",
+          groupId: "",
+        });
+
+        setIsAddMemberDialogOpen(false);
+      } else {
+        toast.error("Error", {
+          description: "Failed to add member",
+        });
+      }
+    } catch (err) {
+      console.error("Error adding member:", err);
+      toast.error("Error", {
+        description: "An unexpected error occurred",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   return (
     <div className="flex-1 space-y-4 p-4 pt-6">
       <div className="flex items-center justify-between">
@@ -382,7 +452,11 @@ export default function MembersPage() {
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle>Team Members</CardTitle>
-              <Button size="sm" className="h-8">
+              <Button
+                size="sm"
+                className="h-8"
+                onClick={() => setIsAddMemberDialogOpen(true)}
+              >
                 <UserPlus className="mr-2 h-4 w-4" /> Add Member
               </Button>
             </div>
@@ -583,6 +657,104 @@ export default function MembersPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Add Member Dialog */}
+      <Dialog
+        open={isAddMemberDialogOpen}
+        onOpenChange={setIsAddMemberDialogOpen}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add New Member</DialogTitle>
+            <DialogDescription>Add a new member to your team</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleAddMember}>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="name">Name</Label>
+                <Input
+                  id="name"
+                  value={newMember.name}
+                  onChange={(e) =>
+                    setNewMember({ ...newMember, name: e.target.value })
+                  }
+                  placeholder="John Doe"
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={newMember.email}
+                  onChange={(e) =>
+                    setNewMember({ ...newMember, email: e.target.value })
+                  }
+                  placeholder="john@example.com"
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="role">Role</Label>
+                <Select
+                  value={newMember.role}
+                  onValueChange={(value) =>
+                    setNewMember({
+                      ...newMember,
+                      role: value as "admin" | "member" | "viewer",
+                    })
+                  }
+                >
+                  <SelectTrigger id="role">
+                    <SelectValue placeholder="Select a role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="admin">Admin</SelectItem>
+                    <SelectItem value="member">Member</SelectItem>
+                    <SelectItem value="viewer">Viewer</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {groups.length > 0 && selectedGroup === "all" && (
+                <div className="grid gap-2">
+                  <Label htmlFor="group">Group</Label>
+                  <Select
+                    value={newMember.groupId}
+                    onValueChange={(value) =>
+                      setNewMember({ ...newMember, groupId: value })
+                    }
+                  >
+                    <SelectTrigger id="group">
+                      <SelectValue placeholder="Select a group" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {groups.map((group) => (
+                        <SelectItem key={group.id} value={group.id}>
+                          {group.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setIsAddMemberDialogOpen(false)}
+                disabled={isProcessing}
+                type="button"
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isProcessing}>
+                {isProcessing ? "Adding..." : "Add Member"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
