@@ -1,5 +1,5 @@
 import { get, post, put, del } from "./HttpHelper";
-import { Item, ApiResponse } from "./types";
+import { Item } from "./types";
 
 export interface CreateItemRequest {
   name: string;

@@ -1,5 +1,5 @@
 import { get, post, put, del } from "./HttpHelper";
-import { Category, ApiResponse } from "./types";
+import { Category } from "./types";
 
 export interface CreateCategoryRequest {
   name: string;

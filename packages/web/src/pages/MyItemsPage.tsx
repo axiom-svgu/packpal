@@ -6,13 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Package,
-  CheckCircle,
-  AlertCircle,
-  Truck,
-  ArrowRight,
-} from "lucide-react";
+import { Package, CheckCircle, AlertCircle, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,

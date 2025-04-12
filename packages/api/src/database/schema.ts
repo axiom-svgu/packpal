@@ -131,11 +131,24 @@ export const usersRelations = relations(users, ({ many }) => ({
   assignedByItems: many(itemAssignments, {
     relationName: "userAssignedByItems",
   }),
+  groups: many(groupMembers),
 }));
 
 // Item relations
-export const itemsRelations = relations(items, ({ many }) => ({
+export const itemsRelations = relations(items, ({ many, one }) => ({
   assignments: many(itemAssignments),
+  category: one(categories, {
+    fields: [items.categoryId],
+    references: [categories.id],
+  }),
+  group: one(groups, {
+    fields: [items.groupId],
+    references: [groups.id],
+  }),
+  creator: one(users, {
+    fields: [items.createdBy],
+    references: [users.id],
+  }),
 }));
 
 // Item assignment relations
@@ -164,6 +177,30 @@ export const groupsRelations = relations(groups, ({ many }) => ({
   members: many(groupMembers),
   categories: many(categories),
   items: many(items),
+}));
+
+// Group members relations
+export const groupMembersRelations = relations(groupMembers, ({ one }) => ({
+  group: one(groups, {
+    fields: [groupMembers.groupId],
+    references: [groups.id],
+  }),
+  user: one(users, {
+    fields: [groupMembers.userId],
+    references: [users.id],
+  }),
+}));
+
+// Categories relations
+export const categoriesRelations = relations(categories, ({ one }) => ({
+  group: one(groups, {
+    fields: [categories.groupId],
+    references: [groups.id],
+  }),
+  creator: one(users, {
+    fields: [categories.createdBy],
+    references: [users.id],
+  }),
 }));
 
 // ============================================================================
@@ -243,6 +280,51 @@ export const listItemAssignments = pgTable(
       ),
     };
   }
+);
+
+// List relations
+export const listsRelations = relations(lists, ({ one, many }) => ({
+  group: one(groups, {
+    fields: [lists.groupId],
+    references: [groups.id],
+  }),
+  creator: one(users, {
+    fields: [lists.createdBy],
+    references: [users.id],
+  }),
+  items: many(listItems),
+}));
+
+// List items relations
+export const listItemsRelations = relations(listItems, ({ one, many }) => ({
+  list: one(lists, {
+    fields: [listItems.listId],
+    references: [lists.id],
+  }),
+  creator: one(users, {
+    fields: [listItems.createdBy],
+    references: [users.id],
+  }),
+  assignments: many(listItemAssignments),
+}));
+
+// List item assignments relations
+export const listItemAssignmentsRelations = relations(
+  listItemAssignments,
+  ({ one }) => ({
+    listItem: one(listItems, {
+      fields: [listItemAssignments.listItemId],
+      references: [listItems.id],
+    }),
+    user: one(users, {
+      fields: [listItemAssignments.userId],
+      references: [users.id],
+    }),
+    assignedBy: one(users, {
+      fields: [listItemAssignments.assignedBy],
+      references: [users.id],
+    }),
+  })
 );
 
 // ============================================================================

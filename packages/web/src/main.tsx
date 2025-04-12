@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
+import { Toaster } from "./components/ui/sonner";
 
 // Import pages and layout
 import NotFound from "./pages/NotFound";
@@ -32,62 +33,50 @@ const protectedRoutes = [
   {
     path: "/dashboard",
     element: <DashboardPage />,
-    errorElement: <NotFound />,
   },
   {
     path: "/members",
     element: <MembersPage />,
-    errorElement: <NotFound />,
   },
   {
     path: "/to-pack",
     element: <ToPackPage />,
-    errorElement: <NotFound />,
   },
   {
     path: "/packed",
     element: <PackedPage />,
-    errorElement: <NotFound />,
   },
   {
     path: "/delivered",
     element: <DeliveredPage />,
-    errorElement: <NotFound />,
   },
   {
     path: "/packing-lists",
     element: <PackingListsPage />,
-    errorElement: <NotFound />,
   },
   {
     path: "/assign-items",
     element: <AssignItemsPage />,
-    errorElement: <NotFound />,
   },
   {
     path: "/manage-roles",
     element: <ManageRolesPage />,
-    errorElement: <NotFound />,
   },
   {
     path: "/create-event",
     element: <CreateEventPage />,
-    errorElement: <NotFound />,
   },
   {
     path: "/settings",
     element: <SettingsPage />,
-    errorElement: <NotFound />,
   },
   {
     path: "/notifications",
     element: <NotificationsPage />,
-    errorElement: <NotFound />,
   },
   {
     path: "/profile",
     element: <ProfilePage />,
-    errorElement: <NotFound />,
   },
   {
     path: "/manage-categories",
@@ -123,6 +112,7 @@ const root = createRoot(rootElement);
 
 root.render(
   <ThemeProvider>
+    <Toaster richColors closeButton />
     <RouterProvider router={router} />
   </ThemeProvider>
 );
