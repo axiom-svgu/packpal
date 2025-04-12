@@ -17,7 +17,7 @@ export default function HomePage() {
         <TestimonialsSection />
         <CTASection />
       </main>
-      <Footer className="relative z-10" />
+      <Footer />
     </div>
   );
 }
