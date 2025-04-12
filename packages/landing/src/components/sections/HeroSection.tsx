@@ -10,7 +10,10 @@ const fadeIn = {
 
 export default function HeroSection() {
   return (
-    <section className="container mx-auto py-24 px-4 relative overflow-hidden">
+    <section
+      id="hero"
+      className="container mx-auto py-24 px-4 relative overflow-hidden"
+    >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
         {/* Left Column */}
         <motion.div
@@ -52,9 +55,13 @@ export default function HeroSection() {
 
           {/* CTA Buttons */}
           <motion.div variants={fadeIn} className="flex gap-4">
-            <Button size="lg">Get Started Free</Button>
-            <Button size="lg" variant="outline">
-              Watch Demo
+            <Button
+              size="lg"
+              onClick={() =>
+                (window.location.href = "https://packpal-app.axiomclub.tech")
+              }
+            >
+              Get Started Free
             </Button>
           </motion.div>
 

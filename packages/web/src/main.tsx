@@ -22,7 +22,6 @@ import ProfilePage from "./pages/ProfilePage";
 import ManageCategoriesPage from "./pages/ManageCategoriesPage";
 import MyItemsPage from "./pages/MyItemsPage";
 import SuggestItemsPage from "./pages/SuggestItemsPage";
-
 // Create a browser router with routes
 const protectedRoutes = [
   {

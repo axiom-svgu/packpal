@@ -55,7 +55,7 @@ const features = [
 
 export default function FeaturesSection() {
   return (
-    <section className="container mx-auto py-24 px-4">
+    <section id="features" className="container mx-auto py-24 px-4">
       <div className="text-center mb-16">
         <h2 className="text-3xl font-bold mb-4">
           Powerful Features for Group Organization
