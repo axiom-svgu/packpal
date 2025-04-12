@@ -13,6 +13,10 @@ import {
   User,
   Plus,
   ChevronDown,
+  Users,
+  Box,
+  CheckCircle,
+  Truck,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -42,6 +46,26 @@ const roleBasedNavigation = {
       title: "Dashboard",
       url: "/dashboard",
       icon: BarChart3,
+    },
+    {
+      title: "Members",
+      url: "/members",
+      icon: Users,
+    },
+    {
+      title: "To Pack",
+      url: "/to-pack",
+      icon: Box,
+    },
+    {
+      title: "Packed",
+      url: "/packed",
+      icon: CheckCircle,
+    },
+    {
+      title: "Delivered",
+      url: "/delivered",
+      icon: Truck,
     },
     {
       title: "Packing Lists",
@@ -87,6 +111,26 @@ const roleBasedNavigation = {
       icon: BarChart3,
     },
     {
+      title: "Members",
+      url: "/members",
+      icon: Users,
+    },
+    {
+      title: "To Pack",
+      url: "/to-pack",
+      icon: Box,
+    },
+    {
+      title: "Packed",
+      url: "/packed",
+      icon: CheckCircle,
+    },
+    {
+      title: "Delivered",
+      url: "/delivered",
+      icon: Truck,
+    },
+    {
       title: "Packing Lists",
       url: "/packing-lists",
       icon: ClipboardList,
@@ -125,6 +169,26 @@ const roleBasedNavigation = {
       icon: BarChart3,
     },
     {
+      title: "Members",
+      url: "/members",
+      icon: Users,
+    },
+    {
+      title: "To Pack",
+      url: "/to-pack",
+      icon: Box,
+    },
+    {
+      title: "Packed",
+      url: "/packed",
+      icon: CheckCircle,
+    },
+    {
+      title: "Delivered",
+      url: "/delivered",
+      icon: Truck,
+    },
+    {
       title: "Packing Lists",
       url: "/packing-lists",
       icon: ClipboardList,
@@ -156,6 +220,26 @@ const roleBasedNavigation = {
       title: "Dashboard",
       url: "/dashboard",
       icon: BarChart3,
+    },
+    {
+      title: "Members",
+      url: "/members",
+      icon: Users,
+    },
+    {
+      title: "To Pack",
+      url: "/to-pack",
+      icon: Box,
+    },
+    {
+      title: "Packed",
+      url: "/packed",
+      icon: CheckCircle,
+    },
+    {
+      title: "Delivered",
+      url: "/delivered",
+      icon: Truck,
     },
     {
       title: "Packing Lists",

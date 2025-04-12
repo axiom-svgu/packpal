@@ -402,7 +402,7 @@ export const updateMemberRole = async (req: Request, res: Response) => {
 
     // Prevent owners from being demoted
     if (
-      memberId === userId &&
+      String(memberId) === String(userId) &&
       updaterMembership.role === "owner" &&
       role !== "owner"
     ) {

@@ -145,13 +145,16 @@ export default function GroupDetailsPage() {
         return;
       }
 
+      // Reset form and close dialog
       setNewMember({ email: "", role: "member" });
-      setIsInviteDialogOpen(false);
       setError(null);
-      fetchGroupDetails();
+      await fetchGroupDetails();
     } catch (error) {
       console.error("Error adding member:", error);
       setError("Failed to add member. Please try again.");
+    } finally {
+      // Always close the dialog, regardless of success or failure
+      setIsInviteDialogOpen(false);
     }
   };
 
@@ -403,8 +406,8 @@ export default function GroupDetailsPage() {
                   <label className="block text-sm font-medium mb-1">Role</label>
                   <Select
                     value={newMember.role}
-                    onValueChange={(value) =>
-                      setNewMember({ ...newMember, role: value as any })
+                    onValueChange={(value: "member") =>
+                      setNewMember({ ...newMember, role: value })
                     }
                   >
                     <SelectTrigger>
@@ -458,9 +461,9 @@ export default function GroupDetailsPage() {
                       {canManageMembers && member.role !== "owner" ? (
                         <Select
                           value={member.role}
-                          onValueChange={(value) =>
-                            handleUpdateRole(member.userId, value)
-                          }
+                          onValueChange={(
+                            value: "admin" | "member" | "viewer"
+                          ) => handleUpdateRole(member.userId, value)}
                         >
                           <SelectTrigger>
                             <SelectValue />
