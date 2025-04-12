@@ -6,6 +6,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,6 +19,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { get, post } from "@/services/HttpHelper";
+import { UserPlus, Users } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface Group {
   id: string;
@@ -27,26 +30,32 @@ interface Group {
   createdAt: string;
 }
 
-export default function Groups() {
+export default function GroupsPage() {
   const [groups, setGroups] = useState<Group[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [newGroup, setNewGroup] = useState({
     name: "",
     description: "",
   });
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
     fetchGroups();
   }, []);
 
   const fetchGroups = async () => {
+    setError(null);
     try {
       const response = await get<{ data: Group[] }>("/groups");
       if (response.data && response.data.data) {
         setGroups(response.data.data);
+      } else if (response.error) {
+        setError(response.error);
       }
     } catch (error) {
       console.error("Error fetching groups:", error);
+      setError("Failed to load groups. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -54,23 +63,44 @@ export default function Groups() {
 
   const handleCreateGroup = async () => {
     try {
-      await post("/groups", newGroup);
+      const response = await post("/groups", newGroup);
+      if (response.error) {
+        setError(response.error);
+        return;
+      }
       setNewGroup({ name: "", description: "" });
+      setIsDialogOpen(false);
       fetchGroups();
     } catch (error) {
       console.error("Error creating group:", error);
+      setError("Failed to create group. Please try again.");
     }
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="container mx-auto py-8">
+        <div className="flex justify-between items-center mb-8">
+          <div className="h-10 w-32 bg-gray-200 animate-pulse rounded"></div>
+          <div className="h-10 w-32 bg-gray-200 animate-pulse rounded"></div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div
+              key={i}
+              className="h-48 bg-gray-200 animate-pulse rounded"
+            ></div>
+          ))}
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="container mx-auto py-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Groups</h1>
-        <Dialog>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button>Create Group</Button>
           </DialogTrigger>
@@ -104,32 +134,66 @@ export default function Groups() {
                   placeholder="Group description"
                 />
               </div>
-              <Button onClick={handleCreateGroup}>Create Group</Button>
+              <Button onClick={handleCreateGroup} disabled={!newGroup.name}>
+                Create Group
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {groups.map((group) => (
-          <Card key={group.id}>
-            <CardHeader>
-              <CardTitle>{group.name}</CardTitle>
-              <CardDescription>{group.description}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex justify-between items-center">
+      {error && (
+        <Alert className="mb-6" variant="destructive">
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      {groups.length === 0 && !error ? (
+        <Card className="text-center p-8">
+          <CardHeader>
+            <CardTitle className="flex justify-center">
+              <Users className="h-12 w-12 mb-2" />
+            </CardTitle>
+            <CardDescription className="text-xl">
+              No Groups Found
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="mb-4">You don't belong to any groups yet.</p>
+            <Button onClick={() => setIsDialogOpen(true)} className="mx-auto">
+              Create Your First Group
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {groups.map((group) => (
+            <Card key={group.id}>
+              <CardHeader>
+                <CardTitle>{group.name}</CardTitle>
+                <CardDescription>{group.description}</CardDescription>
+              </CardHeader>
+              <CardContent>
                 <span className="text-sm text-gray-500">
                   Created {new Date(group.createdAt).toLocaleDateString()}
                 </span>
-                <Button variant="outline" asChild>
+              </CardContent>
+              <CardFooter className="flex justify-between">
+                <Button variant="outline" size="sm" asChild>
                   <a href={`/groups/${group.id}`}>View Details</a>
                 </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+                <Button variant="secondary" size="sm" asChild>
+                  <a href={`/groups/${group.id}`}>
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Invite Member
+                  </a>
+                </Button>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -22,13 +22,17 @@ export function bindLogger() {
     const timestamp = new Date().toISOString();
     const msg = `\`${timestamp}\` ${args.join(" ")}`;
     originalInfo.call(console, msg);
-    sendToWebhook(Constants.INFO_WEBHOOK, msg);
+    if (Constants.INFO_WEBHOOK) {
+      sendToWebhook(Constants.INFO_WEBHOOK, msg);
+    }
   };
 
   console.error = function (...args: any[]) {
     const timestamp = new Date().toISOString();
     const msg = `\`${timestamp}\` ${args.join(" ")}`;
     originalError.call(console, msg);
-    sendToWebhook(Constants.ERROR_WEBHOOK, msg);
+    if (Constants.ERROR_WEBHOOK) {
+      sendToWebhook(Constants.ERROR_WEBHOOK, msg);
+    }
   };
 }

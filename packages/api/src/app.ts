@@ -53,7 +53,21 @@ async function initializeApp() {
     process.exit(1);
   }
   console.info("PackPal API is starting...");
-  await initializeDb();
+
+  try {
+    const dbConnected = await initializeDb();
+    if (!dbConnected) {
+      console.warn(
+        "Starting server with limited functionality due to database connection issues"
+      );
+    }
+  } catch (error) {
+    console.error(
+      "Failed to initialize database, starting with limited functionality:",
+      error
+    );
+  }
+
   await registerRouters(app);
 
   app.get("/", (_: Request, res: Response) => {
@@ -62,12 +76,15 @@ async function initializeApp() {
       success: true,
     });
   });
+
   app.listen(port, () =>
     console.info(`Server running at http://localhost:${port}`)
   );
 }
 
-initializeApp();
+initializeApp().catch((error) => {
+  console.error("Failed to initialize application:", error);
+});
 
 process.on("unhandledRejection", (reason, promise) => {
   console.error("Unhandled Rejection at:", promise, "reason:", reason);
