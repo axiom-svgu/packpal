@@ -1,16 +1,11 @@
 import * as React from "react";
 import {
   Settings2,
-  Users,
-  Building2,
   BarChart3,
   ClipboardList,
   UserCog,
-  ScrollText,
   Bell,
-  Gauge,
   CalendarRange,
-  ClipboardCheck,
   GaugeCircle,
   Package,
   UserPlus,
