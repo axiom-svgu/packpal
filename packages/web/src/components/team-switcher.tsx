@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 import { useEffect } from "react";
 import { get } from "@/services/HttpHelper";
+import { useAuth } from "@/hooks/use-auth";
 
 interface ApiResponse<T> {
   data: T;
@@ -18,8 +19,34 @@ interface ApiResponse<T> {
   message: string;
 }
 
+interface GroupMember {
+  userId: string;
+  groupId: string;
+  role: "owner" | "admin" | "member" | "viewer";
+}
+
 export function GroupSwitcher() {
-  const { groups, currentGroup, setCurrentGroup, setGroups } = useGroupStore();
+  const { user } = useAuth();
+  const { groups, currentGroup, setCurrentGroup, setGroups, setGroupRole } =
+    useGroupStore();
+
+  const fetchUserRole = async (groupId: string) => {
+    try {
+      const response = await get<ApiResponse<GroupMember[]>>(
+        `/groups/${groupId}/members`
+      );
+      if (response.data?.data) {
+        const userMembership = response.data.data.find(
+          (member) => member.userId === user?.id
+        );
+        if (userMembership) {
+          setGroupRole(userMembership.role);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching user role:", error);
+    }
+  };
 
   useEffect(() => {
     const fetchGroups = async () => {
@@ -29,7 +56,9 @@ export function GroupSwitcher() {
           setGroups(response.data.data);
           // Set first group as current if none selected
           if (!currentGroup && response.data.data.length > 0) {
-            setCurrentGroup(response.data.data[0]);
+            const firstGroup = response.data.data[0];
+            setCurrentGroup(firstGroup);
+            await fetchUserRole(firstGroup.id);
           }
         }
       } catch (error) {
@@ -39,6 +68,11 @@ export function GroupSwitcher() {
 
     fetchGroups();
   }, []);
+
+  const handleGroupChange = async (group: Group) => {
+    setCurrentGroup(group);
+    await fetchUserRole(group.id);
+  };
 
   return (
     <SidebarMenu>
@@ -57,14 +91,14 @@ export function GroupSwitcher() {
           </div>
         </SidebarMenuButton>
         <SidebarContent>
-          <ScrollArea className="h-[300px]">
-            <div className="p-2 space-y-1">
+          <ScrollArea className="max-h-[200px]">
+            <div className="p-1 space-y-0.5">
               {groups.map((group) => (
                 <button
                   key={group.id}
-                  onClick={() => setCurrentGroup(group)}
+                  onClick={() => handleGroupChange(group)}
                   className={cn(
-                    "w-full rounded-md p-2 text-left text-sm transition-colors hover:bg-accent",
+                    "w-full rounded-md py-1.5 px-2 text-left text-sm transition-colors hover:bg-accent",
                     currentGroup?.id === group.id && "bg-accent"
                   )}
                 >
@@ -75,8 +109,8 @@ export function GroupSwitcher() {
                 </button>
               ))}
               <Link
-                to="/create-group"
-                className="flex w-full items-center gap-2 rounded-md p-2 text-sm transition-colors hover:bg-accent"
+                to="/groups"
+                className="flex w-full items-center gap-2 rounded-md py-1.5 px-2 text-sm transition-colors hover:bg-accent"
               >
                 <Plus className="h-4 w-4" />
                 Create New Group

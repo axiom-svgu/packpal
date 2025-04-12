@@ -1,15 +1,14 @@
 "use client";
 
-import { LogOut } from "lucide-react";
+import { LogOut, User } from "lucide-react";
+
+import { DropdownMenu } from "@/components/ui/dropdown-menu";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
 } from "@/components/ui/sidebar";
-import { Button } from "./ui/button";
-import { useAuth } from "@/hooks/use-auth";
-import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/use-auth"; // Assuming useAuth is the hook for authentication
 
 export function NavUser({
   user,
@@ -19,44 +18,27 @@ export function NavUser({
     email: string;
   };
 }) {
-  const { logout } = useAuth();
-  const navigate = useNavigate();
-  const { state } = useSidebar();
-
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
-  };
+  const { logout } = useAuth(); // Get the logout function from auth store
 
   return (
     <SidebarMenu>
       <SidebarMenuItem>
-        <SidebarMenuButton
-          size="lg"
-          className="data-[state=open]:bg-sidebar-accent bg-primary text-primary-foreground data-[state=open]:text-sidebar-accent-foreground"
-          tooltip={state === "collapsed" ? "Logout" : undefined}
-        >
-          {state === "expanded" ? (
-            <>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user.name}</span>
-                <span className="truncate text-xs">{user.email}</span>
-              </div>
-              <Button variant="ghost" size="icon" onClick={handleLogout}>
-                <LogOut className="size-4" />
-              </Button>
-            </>
-          ) : (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleLogout}
-              className="mx-auto"
-            >
-              <LogOut className="size-4" />
-            </Button>
-          )}
-        </SidebarMenuButton>
+        <DropdownMenu>
+          <SidebarMenuButton
+            size="lg"
+            className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+          >
+            <div className="h-8 w-8 rounded-lg flex items-center justify-center bg-gray-200">
+              <User className="h-6 w-6 text-gray-600" />
+            </div>
+            <div className="grid flex-1 text-left text-sm leading-tight">
+              <span className="truncate font-semibold">{user.name}</span>
+              <span className="truncate text-xs">{user.email}</span>
+            </div>
+            <LogOut className="ml-auto size-4" onClick={logout} />{" "}
+            {/* Log out icon with click handler */}
+          </SidebarMenuButton>
+        </DropdownMenu>
       </SidebarMenuItem>
     </SidebarMenu>
   );

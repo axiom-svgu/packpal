@@ -30,6 +30,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/hooks/use-auth";
 import { useGroupStore } from "@/lib/group-store";
 import { GroupSwitcher } from "@/components/team-switcher";
+import { Separator } from "@radix-ui/react-separator";
 
 const roleBasedNavigation = {
   owner: [
@@ -273,11 +274,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <GroupSwitcher />
       </SidebarHeader>
+      <Separator className="border-primary border" />
       <SidebarContent>
         <NavMain items={navigationItems} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={{ name: user.name, email: user.email }} />
+        <NavUser user={user} />
       </SidebarFooter>
       {!isMobile && <SidebarRail />}
     </Sidebar>

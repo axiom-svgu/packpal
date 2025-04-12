@@ -24,11 +24,11 @@ export const groupRoleEnum = pgEnum("group_role", [
   "viewer",
 ]);
 
-// Define list item status
-export const listItemStatusEnum = pgEnum("list_item_status", [
-  "todo",
-  "in_progress",
-  "completed",
+// Define item status
+export const itemStatusEnum = pgEnum("item_status", [
+  "to_pack",
+  "packed",
+  "delivered",
 ]);
 
 // ============================================================================
@@ -71,6 +71,58 @@ export const groupMembers = pgTable("group_member", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+// Categories table
+export const categories = pgTable("category", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  groupId: uuid("group_id")
+    .notNull()
+    .references(() => groups.id),
+  createdBy: uuid("created_by")
+    .notNull()
+    .references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Items table
+export const items = pgTable("item", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  quantity: varchar("quantity", { length: 50 }).notNull(),
+  categoryId: uuid("category_id")
+    .notNull()
+    .references(() => categories.id),
+  groupId: uuid("group_id")
+    .notNull()
+    .references(() => groups.id),
+  createdBy: uuid("created_by")
+    .notNull()
+    .references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Item assignments table
+export const itemAssignments = pgTable("item_assignment", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  itemId: uuid("item_id")
+    .notNull()
+    .references(() => items.id),
+  assignedTo: uuid("assigned_to")
+    .notNull()
+    .references(() => users.id),
+  assignedBy: uuid("assigned_by")
+    .notNull()
+    .references(() => users.id),
+  status: itemStatusEnum("status").notNull().default("to_pack"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // ============================================================================
 // List Related Tables
 // ============================================================================
@@ -109,7 +161,7 @@ export const listItems = pgTable(
     listId: uuid("list_id")
       .notNull()
       .references(() => lists.id),
-    status: listItemStatusEnum("status").default("todo").notNull(),
+    status: itemStatusEnum("status").default("to_pack").notNull(),
     dueDate: timestamp("due_date"),
     createdBy: uuid("created_by")
       .notNull()
@@ -210,7 +262,7 @@ export const listUpdateSchema = z.object({
 export const listItemCreationSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
-  status: z.enum(["todo", "in_progress", "completed"]).optional(),
+  status: z.enum(["to_pack", "packed", "delivered"]).optional(),
   dueDate: z.string().optional(),
   assignedTo: z.array(z.string().uuid("Invalid user ID")).optional(),
 });
@@ -218,7 +270,7 @@ export const listItemCreationSchema = z.object({
 export const listItemUpdateSchema = z.object({
   title: z.string().min(1, "Title is required").optional(),
   description: z.string().optional(),
-  status: z.enum(["todo", "in_progress", "completed"]).optional(),
+  status: z.enum(["to_pack", "packed", "delivered"]).optional(),
   dueDate: z.string().optional(),
 });
 
@@ -249,4 +301,22 @@ export type ListItemAssignment = InferSelectModel<typeof listItemAssignments>;
 export type NewListItemAssignment = InferInsertModel<
   typeof listItemAssignments
 >;
-export type ListItemStatus = "todo" | "in_progress" | "completed";
+export type ListItemStatus = "to_pack" | "packed" | "delivered";
+
+// Category types
+export type Category = InferSelectModel<typeof categories>;
+export type NewCategory = InferInsertModel<typeof categories>;
+export const categorySchema = createSelectSchema(categories);
+export const insertCategorySchema = createInsertSchema(categories);
+
+// Item types
+export type Item = InferSelectModel<typeof items>;
+export type NewItem = InferInsertModel<typeof items>;
+export const itemSchema = createSelectSchema(items);
+export const insertItemSchema = createInsertSchema(items);
+
+// Item assignment types
+export type ItemAssignment = InferSelectModel<typeof itemAssignments>;
+export type NewItemAssignment = InferInsertModel<typeof itemAssignments>;
+export const itemAssignmentSchema = createSelectSchema(itemAssignments);
+export const insertItemAssignmentSchema = createInsertSchema(itemAssignments);
