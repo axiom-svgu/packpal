@@ -10,6 +10,8 @@ import AuthPage from "./pages/AuthPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import GroupsPage from "./pages/GroupsPage";
 import GroupDetailsPage from "./pages/GroupDetailsPage";
+import ListsPage from "./pages/ListsPage";
+import ListItemsPage from "./pages/ListItemsPage";
 
 // Create a browser router with routes
 const protectedRoutes = [
@@ -26,6 +28,16 @@ const protectedRoutes = [
   {
     path: "/groups/:groupId",
     element: <GroupDetailsPage />,
+    errorElement: <NotFound />,
+  },
+  {
+    path: "/groups/:groupId/lists",
+    element: <ListsPage />,
+    errorElement: <NotFound />,
+  },
+  {
+    path: "/groups/:groupId/lists/:listId",
+    element: <ListItemsPage />,
     errorElement: <NotFound />,
   },
 ];
