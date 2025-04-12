@@ -1,7 +1,13 @@
 import express from "express";
 import { db } from "../database";
-import { users, type NewUser } from "../database/schema";
-import { eq } from "drizzle-orm";
+import {
+  users,
+  type NewUser,
+  groupMembers,
+  itemAssignments,
+  items,
+} from "../database/schema";
+import { eq, and, count } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import jwt from "jsonwebtoken";
@@ -142,6 +148,112 @@ router.post("/login", async (req, res) => {
     }
 
     console.error("Login error:", error);
+    return res.status(500).json({
+      message: "Internal server error",
+      success: false,
+    });
+  }
+});
+
+// Get user profile with stats
+router.get("/profile", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Get user details
+    const user = await db.query.users.findFirst({
+      where: eq(users.id, userId),
+      with: {
+        groups: {
+          with: {
+            group: true,
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+        success: false,
+      });
+    }
+
+    // Get stats
+    const userGroups = await db.query.groupMembers.findMany({
+      where: eq(groupMembers.userId, userId),
+    });
+
+    const groupIds = userGroups.map((group) => group.groupId);
+
+    // Count assigned items
+    const assignedItemsCount = await db
+      .select({ count: count() })
+      .from(itemAssignments)
+      .where(eq(itemAssignments.assignedTo, userId));
+
+    // Count items by status
+    const toPackCount = await db
+      .select({ count: count() })
+      .from(itemAssignments)
+      .where(
+        and(
+          eq(itemAssignments.assignedTo, userId),
+          eq(itemAssignments.status, "to_pack")
+        )
+      );
+
+    const packedCount = await db
+      .select({ count: count() })
+      .from(itemAssignments)
+      .where(
+        and(
+          eq(itemAssignments.assignedTo, userId),
+          eq(itemAssignments.status, "packed")
+        )
+      );
+
+    const deliveredCount = await db
+      .select({ count: count() })
+      .from(itemAssignments)
+      .where(
+        and(
+          eq(itemAssignments.assignedTo, userId),
+          eq(itemAssignments.status, "delivered")
+        )
+      );
+
+    // Recent assignments
+    const recentAssignments = await db.query.itemAssignments.findMany({
+      where: eq(itemAssignments.assignedTo, userId),
+      with: {
+        item: true,
+        assignedBy: true,
+      },
+      orderBy: (itemAssignments, { desc }) => [desc(itemAssignments.updatedAt)],
+      limit: 5,
+    });
+
+    // Remove password from response
+    const { password: _, ...userWithoutPassword } = user;
+
+    return res.status(200).json({
+      message: "Profile retrieved successfully",
+      success: true,
+      data: {
+        user: userWithoutPassword,
+        stats: {
+          groupsCount: userGroups.length,
+          assignedItemsCount: assignedItemsCount[0]?.count || 0,
+          toPackCount: toPackCount[0]?.count || 0,
+          packedCount: packedCount[0]?.count || 0,
+          deliveredCount: deliveredCount[0]?.count || 0,
+        },
+        recentAssignments,
+      },
+    });
+  } catch (error) {
+    console.error("Profile fetch error:", error);
     return res.status(500).json({
       message: "Internal server error",
       success: false,

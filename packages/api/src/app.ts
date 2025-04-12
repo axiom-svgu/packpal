@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
+import { EventEmitter } from "events";
 
 import { registerRouters } from "./routers";
 import { bindLogger } from "./utils/logging";
@@ -9,6 +10,11 @@ import bodyParser from "body-parser";
 import constants from "./utils/constants";
 import { loggingMiddleware } from "./middleware/log";
 import { initializeDb } from "./database";
+
+// Create global event emitter for real-time updates
+export const eventEmitter = new EventEmitter();
+eventEmitter.setMaxListeners(100); // Increase max listeners to handle multiple clients
+
 const app = express();
 const port = constants.PORT;
 
@@ -70,6 +76,48 @@ async function initializeApp() {
   }
 
   await registerRouters(app);
+
+  // Add SSE endpoint
+  app.get("/sse", (req: Request, res: Response) => {
+    const headers = {
+      "Content-Type": "text/event-stream",
+      Connection: "keep-alive",
+      "Cache-Control": "no-cache",
+    };
+    res.writeHead(200, headers);
+
+    // Send initial connection message
+    const data = `data: ${JSON.stringify({
+      type: "connection",
+      message: "Connected to SSE",
+    })}\n\n`;
+    res.write(data);
+
+    // Set up event listeners for different update types
+    const eventTypes = [
+      "item-update",
+      "list-update",
+      "category-update",
+      "group-update",
+      "assignment-update",
+    ];
+
+    const handlers: Record<string, (data: any) => void> = {};
+
+    eventTypes.forEach((type) => {
+      handlers[type] = (data) => {
+        res.write(`data: ${JSON.stringify({ type, data })}\n\n`);
+      };
+      eventEmitter.on(type, handlers[type]);
+    });
+
+    // Handle client disconnect
+    req.on("close", () => {
+      eventTypes.forEach((type) => {
+        eventEmitter.off(type, handlers[type]);
+      });
+    });
+  });
 
   app.get("/", (_: Request, res: Response) => {
     res.json({

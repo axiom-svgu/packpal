@@ -15,7 +15,6 @@ import PackedPage from "./pages/PackedPage";
 import DeliveredPage from "./pages/DeliveredPage";
 import PackingListsPage from "./pages/PackingListsPage";
 import AssignItemsPage from "./pages/AssignItemsPage";
-import ManageRolesPage from "./pages/ManageRolesPage";
 import CreateEventPage from "./pages/CreateEventPage";
 import SettingsPage from "./pages/SettingsPage";
 import NotificationsPage from "./pages/NotificationsPage";
@@ -57,10 +56,6 @@ const protectedRoutes = [
   {
     path: "/assign-items",
     element: <AssignItemsPage />,
-  },
-  {
-    path: "/manage-roles",
-    element: <ManageRolesPage />,
   },
   {
     path: "/create-event",

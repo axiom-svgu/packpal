@@ -70,11 +70,6 @@ const roleBasedNavigation = {
       icon: Package,
     },
     {
-      title: "Manage Roles",
-      url: "/manage-roles",
-      icon: UserCog,
-    },
-    {
       title: "Create Event/Trip",
       url: "/create-event",
       icon: CalendarRange,

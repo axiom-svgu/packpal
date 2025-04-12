@@ -5,6 +5,7 @@ import { eq, and } from "drizzle-orm";
 import { z } from "zod";
 import { authMiddleware } from "../middleware/auth";
 import { requireRole } from "../middleware/auth";
+import { emitItemUpdate } from "../utils/eventEmitter";
 
 const router = express.Router();
 
@@ -79,6 +80,10 @@ router.post("/", authMiddleware, requireRole("member"), async (req, res) => {
       createdBy: req.user?.id || "",
     };
     const item = await db.insert(items).values(newItem).returning();
+
+    // Emit event for real-time updates
+    emitItemUpdate(item[0], "create", validatedData.groupId);
+
     res.status(201).json(item[0]);
   } catch (error) {
     console.error("Error creating item:", error);
@@ -103,6 +108,10 @@ router.put("/:id", authMiddleware, requireRole("member"), async (req, res) => {
     if (item.length === 0) {
       return res.status(404).json({ error: "Item not found" });
     }
+
+    // Emit event for real-time updates
+    emitItemUpdate(item[0], "update", item[0].groupId);
+
     res.json(item[0]);
   } catch (error) {
     console.error("Error updating item:", error);
@@ -122,10 +131,21 @@ router.delete(
   async (req, res) => {
     try {
       const { id } = req.params;
-      const item = await db.delete(items).where(eq(items.id, id)).returning();
-      if (item.length === 0) {
+
+      // Get the item before deleting to have data for the event
+      const itemToDelete = await db.query.items.findFirst({
+        where: eq(items.id, id),
+      });
+
+      if (!itemToDelete) {
         return res.status(404).json({ error: "Item not found" });
       }
+
+      const item = await db.delete(items).where(eq(items.id, id)).returning();
+
+      // Emit event for real-time updates
+      emitItemUpdate({ id }, "delete", itemToDelete.groupId);
+
       res.json({ message: "Item deleted successfully" });
     } catch (error) {
       console.error("Error deleting item:", error);

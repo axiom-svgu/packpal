@@ -108,13 +108,6 @@ export function GroupSwitcher() {
                   </div>
                 </button>
               ))}
-              <Link
-                to="/groups"
-                className="flex w-full items-center gap-2 rounded-md py-1.5 px-2 text-sm transition-colors hover:bg-accent"
-              >
-                <Plus className="h-4 w-4" />
-                Create New Group
-              </Link>
             </div>
           </ScrollArea>
         </SidebarContent>

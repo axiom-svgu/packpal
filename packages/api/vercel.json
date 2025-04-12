@@ -11,6 +11,16 @@
   ],
   "routes": [
     {
+      "src": "/sse",
+      "dest": "/src/app.ts",
+      "headers": {
+        "Cache-Control": "no-cache, no-transform",
+        "Connection": "keep-alive",
+        "Content-Type": "text/event-stream",
+        "X-Accel-Buffering": "no"
+      }
+    },
+    {
       "src": "/(.*)",
       "dest": "/src/app.ts"
     }
