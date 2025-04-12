@@ -24,7 +24,6 @@ import {
 } from "@dnd-kit/core";
 import {
   SortableContext,
-  arrayMove,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
@@ -56,6 +55,8 @@ function TaskCard({
     opacity: isDragging ? 0.5 : 1,
   };
 
+  const formattedDate = new Date(assignment.createdAt).toLocaleDateString();
+
   return (
     <div
       ref={setNodeRef}
@@ -65,16 +66,46 @@ function TaskCard({
       className="mb-2 cursor-grab"
     >
       <Card className="border shadow-sm hover:shadow-md transition-shadow">
-        <CardContent className="p-4">
-          <div className="font-medium">{assignment.item?.name}</div>
-          <div className="text-sm text-gray-500 mt-1">
-            Quantity: {assignment.item?.quantity}
-          </div>
-          {assignment.item?.category && (
-            <Badge variant="outline" className="mt-2">
-              {assignment.item.category.name}
-            </Badge>
+        <CardContent className="px-2">
+          <div className="font-medium text-base">{assignment.item?.name}</div>
+
+          {assignment.item?.description && (
+            <div className="text-xs text-gray-600 mt-1 line-clamp-2">
+              {assignment.item.description}
+            </div>
           )}
+
+          <div className="flex justify-between items-center mt-1">
+            <div className="text-sm text-gray-700">
+              <span className="font-medium">Qty:</span>{" "}
+              {assignment.item?.quantity}
+            </div>
+
+            {assignment.user && (
+              <div className="text-xs text-gray-500">
+                <span className="font-medium">Assigned to:</span>{" "}
+                {assignment.user.name}
+              </div>
+            )}
+          </div>
+
+          <div className="flex flex-wrap gap-1 mt-2">
+            {assignment.item?.category && (
+              <Badge variant="outline" className="text-xs px-1 py-0">
+                {assignment.item.category.name}
+              </Badge>
+            )}
+
+            {assignment.notes && (
+              <Badge variant="secondary" className="text-xs px-1 py-0">
+                Has notes
+              </Badge>
+            )}
+
+            <Badge variant="outline" className="text-xs px-1 py-0 ml-auto">
+              Added: {formattedDate}
+            </Badge>
+          </div>
         </CardContent>
       </Card>
     </div>
@@ -95,19 +126,19 @@ function Column({
 }) {
   return (
     <Card className="w-full h-full">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-xl flex items-center space-x-2">
+      <CardHeader className="py-0">
+        <CardTitle className="text-base flex items-center gap-1">
           {icon}
           <span>{title}</span>
-          <Badge variant="secondary" className="ml-2">
+          <Badge variant="secondary" className="ml-1 text-xs px-1.5 py-0">
             {assignments.length}
           </Badge>
         </CardTitle>
       </CardHeader>
       <Separator />
       <CardContent
-        className="pt-4 overflow-y-auto"
-        style={{ height: "calc(100% - 70px)" }}
+        className="pt-2 px-2 overflow-y-auto"
+        style={{ height: "calc(100% - 55px)" }}
         id={`column-${status}`}
       >
         <SortableContext
@@ -115,7 +146,7 @@ function Column({
           strategy={verticalListSortingStrategy}
         >
           {assignments.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">No items</div>
+            <div className="text-center text-gray-500 text-sm">No items</div>
           ) : (
             assignments.map((assignment) => (
               <TaskCard key={assignment.id} assignment={assignment} />
@@ -255,9 +286,9 @@ export default function KanbanPage() {
   };
 
   return (
-    <div className="flex-1 p-4 pt-6">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-3xl font-bold tracking-tight">
+    <div className="flex-1 p-4 pt-5">
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-2xl font-bold tracking-tight">
           Item Tracking Board
         </h2>
         <Button onClick={fetchItems} variant="outline" size="sm">
@@ -266,17 +297,17 @@ export default function KanbanPage() {
       </div>
 
       {error && (
-        <Alert variant="destructive" className="mb-4">
+        <Alert variant="destructive" className="mb-2">
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 
       {loading ? (
-        <div className="flex justify-center py-12">
+        <div className="flex justify-center py-6">
           <p>Loading items...</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-[calc(100vh-200px)]">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 h-[calc(100vh-150px)]">
           <DndContext
             sensors={sensors}
             collisionDetection={closestCorners}
