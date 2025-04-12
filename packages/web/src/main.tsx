@@ -8,10 +8,20 @@ import DashboardPage from "./pages/DashboardPage";
 import { ThemeProvider } from "./components/theme-provider";
 import AuthPage from "./pages/AuthPage";
 import ProtectedRoute from "./components/ProtectedRoute";
-import GroupsPage from "./pages/GroupsPage";
-import GroupDetailsPage from "./pages/GroupDetailsPage";
-import ListsPage from "./pages/ListsPage";
-import ListItemsPage from "./pages/ListItemsPage";
+import MembersPage from "./pages/MembersPage";
+import ToPackPage from "./pages/ToPackPage";
+import PackedPage from "./pages/PackedPage";
+import DeliveredPage from "./pages/DeliveredPage";
+import PackingListsPage from "./pages/PackingListsPage";
+import AssignItemsPage from "./pages/AssignItemsPage";
+import ManageRolesPage from "./pages/ManageRolesPage";
+import CreateEventPage from "./pages/CreateEventPage";
+import SettingsPage from "./pages/SettingsPage";
+import NotificationsPage from "./pages/NotificationsPage";
+import ProfilePage from "./pages/ProfilePage";
+import ManageCategoriesPage from "./pages/ManageCategoriesPage";
+import MyItemsPage from "./pages/MyItemsPage";
+import SuggestItemsPage from "./pages/SuggestItemsPage";
 
 // Create a browser router with routes
 const protectedRoutes = [
@@ -21,23 +31,78 @@ const protectedRoutes = [
     errorElement: <NotFound />,
   },
   {
-    path: "/groups",
-    element: <GroupsPage />,
+    path: "/dashboard",
+    element: <DashboardPage />,
     errorElement: <NotFound />,
   },
   {
-    path: "/groups/:groupId",
-    element: <GroupDetailsPage />,
+    path: "/members",
+    element: <MembersPage />,
     errorElement: <NotFound />,
   },
   {
-    path: "/groups/:groupId/lists",
-    element: <ListsPage />,
+    path: "/to-pack",
+    element: <ToPackPage />,
     errorElement: <NotFound />,
   },
   {
-    path: "/groups/:groupId/lists/:listId",
-    element: <ListItemsPage />,
+    path: "/packed",
+    element: <PackedPage />,
+    errorElement: <NotFound />,
+  },
+  {
+    path: "/delivered",
+    element: <DeliveredPage />,
+    errorElement: <NotFound />,
+  },
+  {
+    path: "/packing-lists",
+    element: <PackingListsPage />,
+    errorElement: <NotFound />,
+  },
+  {
+    path: "/assign-items",
+    element: <AssignItemsPage />,
+    errorElement: <NotFound />,
+  },
+  {
+    path: "/manage-roles",
+    element: <ManageRolesPage />,
+    errorElement: <NotFound />,
+  },
+  {
+    path: "/create-event",
+    element: <CreateEventPage />,
+    errorElement: <NotFound />,
+  },
+  {
+    path: "/settings",
+    element: <SettingsPage />,
+    errorElement: <NotFound />,
+  },
+  {
+    path: "/notifications",
+    element: <NotificationsPage />,
+    errorElement: <NotFound />,
+  },
+  {
+    path: "/profile",
+    element: <ProfilePage />,
+    errorElement: <NotFound />,
+  },
+  {
+    path: "/manage-categories",
+    element: <ManageCategoriesPage />,
+    errorElement: <NotFound />,
+  },
+  {
+    path: "/my-items",
+    element: <MyItemsPage />,
+    errorElement: <NotFound />,
+  },
+  {
+    path: "/suggest-items",
+    element: <SuggestItemsPage />,
     errorElement: <NotFound />,
   },
 ];

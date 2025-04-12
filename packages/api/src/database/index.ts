@@ -1,11 +1,7 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import * as schema from "./schema";
-import * as listsSchema from "./lists-schema";
 import { eq } from "drizzle-orm";
-
-// For Neon database, directly use the full connection string from env when available
-const connectionString = process.env.DATABASE_URL;
 
 // If DATABASE_URL is not provided, build it from individual parameters
 const fallbackConnectionString = `postgres://${
@@ -15,13 +11,12 @@ const fallbackConnectionString = `postgres://${
 }/${process.env.DB_NAME || "postgres"}`;
 
 // Final connection string to use
-const dbConnectionString = connectionString || fallbackConnectionString;
+const dbConnectionString = fallbackConnectionString;
 
 console.log("Connecting to database with:", {
   host: process.env.DB_HOST,
   database: process.env.DB_NAME,
   user: process.env.DB_USER,
-  usingConnectionUrl: !!connectionString,
 });
 
 // Create Postgres client with special configuration for Neon
@@ -36,7 +31,7 @@ const client = postgres(dbConnectionString, {
 });
 
 // Merge schemas
-const mergedSchema = { ...schema, ...listsSchema };
+const mergedSchema = { ...schema };
 
 // Create Drizzle ORM instance with query builder
 export const db = drizzle(client, {
@@ -45,7 +40,7 @@ export const db = drizzle(client, {
 });
 
 // Export direct access to tables and helpers
-export { schema, listsSchema, eq };
+export { schema, eq };
 
 // Initialize database connection
 export async function initializeDb() {

@@ -4,7 +4,7 @@ import {
   lists,
   listCreationSchema,
   listUpdateSchema,
-} from "../database/lists-schema";
+} from "../database/schema";
 import { groupMembers, groups } from "../database/schema";
 import { and, eq, ne } from "drizzle-orm";
 
@@ -128,7 +128,10 @@ export const getGroupLists = async (req: Request, res: Response) => {
 
     // Only include non-archived lists unless explicitly requested
     if (!includeArchived) {
-      query = query.where(eq(lists.isArchived, false));
+      query = db
+        .select()
+        .from(lists)
+        .where(and(eq(lists.groupId, groupId), eq(lists.isArchived, false)));
     }
 
     const groupLists = await query;

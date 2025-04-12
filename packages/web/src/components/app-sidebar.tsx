@@ -11,8 +11,6 @@ import {
   UserPlus,
   Layers,
   User,
-  Plus,
-  ChevronDown,
   Users,
   Box,
   CheckCircle,
@@ -31,14 +29,7 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/hooks/use-auth";
 import { useGroupStore } from "@/lib/group-store";
-import { Button } from "./ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
-import { Link } from "react-router-dom";
+import { GroupSwitcher } from "@/components/team-switcher";
 
 const roleBasedNavigation = {
   owner: [
@@ -267,7 +258,9 @@ const roleBasedNavigation = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const isMobile = useIsMobile();
   const { user } = useAuth();
-  const { currentGroup, groupRole, groups, setCurrentGroup } = useGroupStore();
+  const { groupRole } = useGroupStore();
+
+  console.log(groupRole);
 
   const navigationItems = groupRole ? roleBasedNavigation[groupRole] : [];
 
@@ -278,32 +271,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar {...props}>
       <SidebarHeader>
-        <div className="flex items-center justify-between p-4">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="flex items-center gap-2">
-                {currentGroup?.name || "Select Group"}
-                <ChevronDown className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              {groups.map((group) => (
-                <DropdownMenuItem
-                  key={group.id}
-                  onClick={() => setCurrentGroup(group)}
-                >
-                  {group.name}
-                </DropdownMenuItem>
-              ))}
-              <DropdownMenuItem asChild>
-                <Link to="/create-group" className="flex items-center gap-2">
-                  <Plus className="h-4 w-4" />
-                  Create New Group
-                </Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        <GroupSwitcher />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={navigationItems} />
