@@ -38,35 +38,40 @@ const testimonials = [
 
 export default function TestimonialsSection() {
   return (
-    <section id="testimonials" className="container mx-auto py-24 px-4">
-      <div className="text-center mb-16">
-        <h2 className="text-3xl font-bold mb-4">Loved by Groups Everywhere</h2>
-        <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+    <section
+      id="testimonials"
+      className="container mx-auto py-12 md:py-24 px-4"
+    >
+      <div className="text-center mb-8 md:mb-16">
+        <h2 className="text-2xl md:text-3xl font-bold mb-3 md:mb-4">
+          Loved by Groups Everywhere
+        </h2>
+        <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto">
           See how PackPal is helping teams stay organized and stress-free.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8">
         {testimonials.map((testimonial, index) => (
-          <Card key={index} className="bg-background">
-            <CardContent className="pt-6">
-              <div className="flex mb-4">
+          <Card key={index} className="bg-background h-full">
+            <CardContent className="pt-6 h-full flex flex-col">
+              <div className="flex mb-3 md:mb-4">
                 {[...Array(testimonial.rating)].map((_, i) => (
                   <Star
                     key={i}
-                    className="size-5 fill-yellow-500 text-yellow-500"
+                    className="size-4 md:size-5 fill-yellow-500 text-yellow-500"
                   />
                 ))}
               </div>
-              <blockquote className="text-lg mb-6">
+              <blockquote className="text-base md:text-lg mb-4 md:mb-6 flex-grow">
                 "{testimonial.quote}"
               </blockquote>
               <div>
                 <div className="font-semibold">{testimonial.author}</div>
-                <div className="text-sm text-muted-foreground">
+                <div className="text-xs md:text-sm text-muted-foreground">
                   {testimonial.position}
                 </div>
-                <div className="text-sm text-muted-foreground">
+                <div className="text-xs md:text-sm text-muted-foreground">
                   {testimonial.company}
                 </div>
               </div>

@@ -12,12 +12,12 @@ export default function HeroSection() {
   return (
     <section
       id="hero"
-      className="container mx-auto py-24 px-4 relative overflow-hidden"
+      className="container mx-auto py-12 md:py-24 px-4 relative overflow-hidden"
     >
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 items-center">
         {/* Left Column */}
         <motion.div
-          className="flex flex-col gap-8"
+          className="flex flex-col gap-6 md:gap-8"
           initial="initial"
           animate="animate"
           variants={{
@@ -26,13 +26,13 @@ export default function HeroSection() {
         >
           {/* Heading */}
           <motion.div variants={fadeIn}>
-            <h1 className="text-6xl font-bold mb-4 tracking-tight">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-3 md:mb-4 tracking-tight">
               Group Packing{" "}
               <span className="text-primary underline decoration-wavy decoration-primary/30 underline-offset-8">
                 Made Simple
               </span>
             </h1>
-            <p className="text-xl text-muted-foreground leading-relaxed">
+            <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
               Streamline your event and travel planning with collaborative
               checklists. Assign tasks, track progress, and stay organized as a
               team.
@@ -47,7 +47,7 @@ export default function HeroSection() {
               "Smart conflict detection and alerts",
             ].map((benefit) => (
               <div key={benefit} className="flex items-center gap-2">
-                <CheckCircle className="text-primary h-5 w-5" />
+                <CheckCircle className="text-primary h-5 w-5 flex-shrink-0" />
                 <span className="text-sm">{benefit}</span>
               </div>
             ))}
@@ -57,6 +57,7 @@ export default function HeroSection() {
           <motion.div variants={fadeIn} className="flex gap-4">
             <Button
               size="lg"
+              className="w-full sm:w-auto"
               onClick={() =>
                 (window.location.href = "https://packpal-app.axiomclub.tech")
               }
@@ -68,7 +69,7 @@ export default function HeroSection() {
           {/* Social Proof */}
           <motion.div
             variants={fadeIn}
-            className="flex flex-wrap gap-8 items-center pt-4 border-t"
+            className="flex flex-col sm:flex-row flex-wrap gap-4 sm:gap-8 items-start sm:items-center pt-4 border-t"
           >
             <div className="space-y-1">
               <div className="flex items-center gap-1">
@@ -91,14 +92,22 @@ export default function HeroSection() {
               </p>
             </div>
 
-            <div className="flex gap-4">
+            <div className="flex gap-4 mt-2 sm:mt-0">
               <div className="text-center">
-                <p className="text-3xl font-bold text-primary">500K+</p>
-                <p className="text-sm text-muted-foreground">Items Packed</p>
+                <p className="text-2xl md:text-3xl font-bold text-primary">
+                  500K+
+                </p>
+                <p className="text-xs md:text-sm text-muted-foreground">
+                  Items Packed
+                </p>
               </div>
               <div className="text-center">
-                <p className="text-3xl font-bold text-primary">50K+</p>
-                <p className="text-sm text-muted-foreground">Active Groups</p>
+                <p className="text-2xl md:text-3xl font-bold text-primary">
+                  50K+
+                </p>
+                <p className="text-xs md:text-sm text-muted-foreground">
+                  Active Groups
+                </p>
               </div>
             </div>
           </motion.div>
@@ -106,14 +115,14 @@ export default function HeroSection() {
 
         {/* Right Column - App Features Showcase */}
         <motion.div
-          className="relative flex justify-center"
+          className="relative flex justify-center mt-8 md:mt-0"
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
           <div className="relative w-full max-w-md">
             <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 to-transparent rounded-3xl transform rotate-3" />
-            <div className="relative z-10 bg-card border shadow-xl rounded-3xl p-6 space-y-6">
+            <div className="relative z-10 bg-card border shadow-xl rounded-3xl p-4 md:p-6 space-y-4 md:space-y-6">
               {/* Feature Cards */}
               <motion.div
                 className="bg-background p-4 rounded-lg border shadow-sm"
@@ -125,10 +134,10 @@ export default function HeroSection() {
                 }}
               >
                 <div className="flex items-center gap-3">
-                  <Users className="h-8 w-8 text-primary" />
+                  <Users className="h-6 w-6 md:h-8 md:w-8 text-primary" />
                   <div>
                     <h3 className="font-semibold">Team Collaboration</h3>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs md:text-sm text-muted-foreground">
                       Assign roles and tasks
                     </p>
                   </div>
@@ -146,10 +155,10 @@ export default function HeroSection() {
                 }}
               >
                 <div className="flex items-center gap-3">
-                  <ListChecks className="h-8 w-8 text-primary" />
+                  <ListChecks className="h-6 w-6 md:h-8 md:w-8 text-primary" />
                   <div>
                     <h3 className="font-semibold">Smart Checklists</h3>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs md:text-sm text-muted-foreground">
                       Track packing progress
                     </p>
                   </div>
@@ -167,10 +176,10 @@ export default function HeroSection() {
                 }}
               >
                 <div className="flex items-center gap-3">
-                  <Clock className="h-8 w-8 text-primary" />
+                  <Clock className="h-6 w-6 md:h-8 md:w-8 text-primary" />
                   <div>
                     <h3 className="font-semibold">Real-time Updates</h3>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs md:text-sm text-muted-foreground">
                       Stay in sync with your team
                     </p>
                   </div>

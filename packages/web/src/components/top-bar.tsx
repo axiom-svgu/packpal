@@ -138,27 +138,46 @@ export function TopBar() {
   const SearchComponent = (
     <div
       className={cn(
-        "flex items-center w-full max-w-md relative transition-all duration-200",
+        "flex items-center w-full max-w-md mx-auto relative transition-all duration-200",
         {
           "opacity-0 pointer-events-none w-0": isMobile && !showSearch,
           "opacity-100 pointer-events-auto": !isMobile || showSearch,
+          "absolute inset-x-0 top-0 h-16 px-4 z-20 flex items-center bg-white":
+            isMobile && showSearch,
         }
       )}
     >
+      {isMobile && showSearch && (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setShowSearch(false)}
+          className="mr-2"
+          aria-label="Close search"
+        >
+          <X className="h-5 w-5" />
+        </Button>
+      )}
+
       <Popover open={searchOpen} onOpenChange={setSearchOpen}>
         <PopoverTrigger asChild>
           <div className="w-full relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               ref={searchInputRef}
               type="search"
               placeholder="Search (Ctrl+K or Ctrl+Enter)..."
-              className="pl-8 rounded-full bg-muted/50 border-none focus-visible:ring-1"
+              className="pl-9 rounded-full bg-muted/50 border-none focus-visible:ring-1 w-full"
               onClick={() => setSearchOpen(true)}
               readOnly
             />
           </div>
         </PopoverTrigger>
-        <PopoverContent className="p-0 w-[300px] md:w-[500px]" align="center">
+        <PopoverContent
+          className="p-0 w-screen sm:w-[300px] md:w-[500px]"
+          align="center"
+          sideOffset={5}
+        >
           <Command>
             <CommandInput
               placeholder="Search pages..."
@@ -198,19 +217,9 @@ export function TopBar() {
     </div>
   );
 
-  const MobileSearchToggle = isMobile && (
-    <Button
-      variant="ghost"
-      size="icon"
-      onClick={() => setShowSearch(!showSearch)}
-      className="md:hidden"
-    >
-      {showSearch ? <X className="h-5 w-5" /> : <Search className="h-5 w-5" />}
-    </Button>
-  );
   return (
-    <div className="w-full flex justify-center bg-white shadow-sm">
-      <header className="w-full flex h-16 shrink-0 items-center justify-between px-4 py-2">
+    <div className="w-full flex justify-center bg-white shadow-sm sticky top-0 z-10">
+      <header className="w-full max-w-7xl flex h-16 shrink-0 items-center justify-between px-4 py-2">
         <div className="flex items-center gap-4">
           <div className="md:hidden">
             <Sheet>
@@ -233,58 +242,90 @@ export function TopBar() {
           </Link>
         </div>
 
-        <div className="flex-1 max-w-md mx-4">{SearchComponent}</div>
-
-        <div className="flex items-center gap-3">
-          {MobileSearchToggle}
-
-          <NotificationPopover />
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+        {isMobile ? (
+          <>
+            {showSearch ? SearchComponent : null}
+            <div className="flex items-center gap-2">
               <Button
                 variant="ghost"
-                className="relative h-9 w-9 rounded-full p-0"
+                size="icon"
+                onClick={() => setShowSearch(!showSearch)}
+                className="md:hidden"
+                aria-label="Search"
               >
-                <Avatar className="h-9 w-9">
-                  <AvatarFallback className="bg-primary/10 text-primary">
-                    {userInitials}
-                  </AvatarFallback>
-                </Avatar>
+                <Search className="h-5 w-5" />
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>
-                <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">
-                    {user?.name}
-                  </p>
-                  <p className="text-xs leading-none text-muted-foreground">
-                    {user?.email}
-                  </p>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <Link to="/profile">
-                <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
-                  Profile
-                </DropdownMenuItem>
-              </Link>
-              <Link to="/settings">
-                <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
-                  Settings
-                </DropdownMenuItem>
-              </Link>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => logout()}
-                className="flex items-center gap-2 cursor-pointer text-red-500 focus:text-red-500"
-              >
-                Logout
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+
+              <NotificationPopover />
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="relative h-8 w-8 rounded-full p-0"
+                  >
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                        {userInitials}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/profile">Profile</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/settings">Settings</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => logout()}>
+                    Log out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="flex-1 max-w-md mx-4">{SearchComponent}</div>
+
+            <div className="flex items-center gap-3">
+              <NotificationPopover />
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="relative h-9 w-9 rounded-full p-0"
+                  >
+                    <Avatar className="h-9 w-9">
+                      <AvatarFallback className="bg-primary/10 text-primary">
+                        {userInitials}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/profile">Profile</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/settings">Settings</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => logout()}>
+                    Log out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </>
+        )}
       </header>
     </div>
   );
