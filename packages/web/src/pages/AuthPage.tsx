@@ -7,14 +7,25 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signInSchema, signUpSchema } from "@/schemas/authSchemas";
 import type { SignInFormValues, SignUpFormValues } from "@/schemas/authSchemas";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { authService } from "@/services/AuthService";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuthStore } from "@/lib/store";
 import { Package } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function AuthPage() {
+  const { toast } = useToast();
+
+  useEffect(() => {
+    toast({
+      title: "Admin Login Credentials",
+      description: "Email: admin@example.com, Password: password123",
+      duration: 6000,
+    });
+  }, [toast]);
+
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-background to-muted flex items-center justify-center p-4">
       <div className="w-full max-w-md mx-auto">

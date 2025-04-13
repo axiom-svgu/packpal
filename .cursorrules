@@ -9,14 +9,13 @@ This monorepo contains three projects:
 ## Tech Stack
 
 - Bun
-- TypeScript
 - Vite
 - React
 - React Router DOM
 - Tailwind CSS
 - ShadCN UI
 - ExpressJS
-- TypeORM
+- DrizzleORM
 
 ## Development
 
