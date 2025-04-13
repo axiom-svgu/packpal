@@ -158,7 +158,7 @@ router.post("/login", async (req, res) => {
 // Get user profile with stats
 router.get("/profile", authMiddleware, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user!.id;
 
     // Get user details
     const user = await db.query.users.findFirst({
@@ -254,6 +254,122 @@ router.get("/profile", authMiddleware, async (req, res) => {
     });
   } catch (error) {
     console.error("Profile fetch error:", error);
+    return res.status(500).json({
+      message: "Internal server error",
+      success: false,
+    });
+  }
+});
+
+// Update user profile
+router.put("/profile", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user!.id;
+
+    // Update profile schema
+    const updateProfileSchema = z.object({
+      name: z.string().min(1, "Name is required").optional(),
+      email: z.string().email("Invalid email format").optional(),
+      currentPassword: z
+        .string()
+        .min(1, "Current password is required")
+        .optional(),
+      newPassword: z
+        .string()
+        .min(6, "New password must be at least 6 characters long")
+        .optional(),
+    });
+
+    const validatedData = updateProfileSchema.parse(req.body);
+    const { name, email, currentPassword, newPassword } = validatedData;
+
+    // Get current user data
+    const currentUser = await db.query.users.findFirst({
+      where: eq(users.id, userId),
+    });
+
+    if (!currentUser) {
+      return res.status(404).json({
+        message: "User not found",
+        success: false,
+      });
+    }
+
+    // If changing email, check if it's already taken
+    if (email && email !== currentUser.email) {
+      const existingUserWithEmail = await db.query.users.findFirst({
+        where: eq(users.email, email),
+      });
+
+      if (existingUserWithEmail) {
+        return res.status(400).json({
+          message: "Email already in use",
+          success: false,
+        });
+      }
+    }
+
+    // Prepare update data
+    const updateData: Partial<NewUser> = {};
+
+    if (name) updateData.name = name;
+    if (email) updateData.email = email;
+
+    // Handle password change
+    if (currentPassword && newPassword) {
+      // Verify current password
+      const isPasswordValid = await bcrypt.compare(
+        currentPassword,
+        currentUser.password
+      );
+      if (!isPasswordValid) {
+        return res.status(401).json({
+          message: "Current password is incorrect",
+          success: false,
+        });
+      }
+
+      // Hash and set new password
+      updateData.password = await bcrypt.hash(newPassword, 10);
+    }
+
+    // Update user
+    if (Object.keys(updateData).length > 0) {
+      const [updatedUser] = await db
+        .update(users)
+        .set({
+          ...updateData,
+          updatedAt: new Date(),
+        })
+        .where(eq(users.id, userId))
+        .returning();
+
+      // Remove password from response
+      const { password: _, ...userWithoutPassword } = updatedUser;
+
+      return res.status(200).json({
+        message: "Profile updated successfully",
+        success: true,
+        data: {
+          user: userWithoutPassword,
+        },
+      });
+    } else {
+      // No data to update
+      return res.status(400).json({
+        message: "No valid data provided for update",
+        success: false,
+      });
+    }
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        message: error.errors[0].message,
+        success: false,
+      });
+    }
+
+    console.error("Profile update error:", error);
     return res.status(500).json({
       message: "Internal server error",
       success: false,
