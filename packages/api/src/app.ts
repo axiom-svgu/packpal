@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
 import { EventEmitter } from "events";
+import serverless from "serverless-http";
 
 import { registerRouters } from "./routers";
 import { bindLogger } from "./utils/logging";
@@ -15,7 +16,7 @@ import { initializeDb } from "./database";
 export const eventEmitter = new EventEmitter();
 eventEmitter.setMaxListeners(100); // Increase max listeners to handle multiple clients
 
-const app = express();
+export const app = express();
 const port = constants.PORT;
 
 async function initializeApp() {
@@ -128,11 +129,15 @@ async function initializeApp() {
     });
   });
 
-  app.listen(port, () =>
-    console.info(`Server running at http://localhost:${port}`)
-  );
+  // Only start the server when running directly (not in serverless environment)
+  if (process.env.NODE_ENV !== "production") {
+    app.listen(port, () =>
+      console.info(`Server running at http://localhost:${port}`)
+    );
+  }
 }
 
+// Initialize the app immediately
 initializeApp().catch((error) => {
   console.error("Failed to initialize application:", error);
 });
@@ -144,3 +149,8 @@ process.on("unhandledRejection", (reason, promise) => {
 process.on("uncaughtException", (error) => {
   console.error("Uncaught Exception thrown", error);
 });
+
+// Export the serverless handler for cloud deployment
+export const handler = serverless(app);
+// Export default handler for compatibility with serverless environments
+export default serverless(app);
