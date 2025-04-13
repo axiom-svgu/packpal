@@ -421,6 +421,8 @@ async function generateListItems(lists: any[]) {
  */
 async function generateListItemAssignments(listItems: any[]) {
   const assignments = [];
+  const batchSize = 20; // Process in smaller batches
+  let totalAssignmentsCreated = 0;
 
   for (const listItem of listItems) {
     const list = await db.query.lists.findFirst({
@@ -451,9 +453,34 @@ async function generateListItemAssignments(listItems: any[]) {
         assignedAt: randomDate(new Date(listItem.createdAt), new Date()),
       });
     }
+
+    // Insert assignments in batches to avoid connection timeout
+    if (assignments.length >= batchSize) {
+      try {
+        await db.insert(schema.listItemAssignments).values(assignments);
+        totalAssignmentsCreated += assignments.length;
+        console.log(`✅ ${assignments.length} list item assignments created`);
+        assignments.length = 0; // Clear the array after successful insertion
+      } catch (error) {
+        console.error("Error inserting list item assignments batch:", error);
+        throw error;
+      }
+    }
   }
 
-  return assignments;
+  // Insert any remaining assignments
+  if (assignments.length > 0) {
+    try {
+      await db.insert(schema.listItemAssignments).values(assignments);
+      totalAssignmentsCreated += assignments.length;
+      console.log(`✅ ${assignments.length} list item assignments created`);
+    } catch (error) {
+      console.error("Error inserting remaining list item assignments:", error);
+      throw error;
+    }
+  }
+
+  return assignments; // Return the assignments array (which will be empty if all were inserted)
 }
 
 /**
@@ -463,26 +490,47 @@ export async function seedDatabase() {
   try {
     console.log("🌱 Starting database seeding...");
 
-    // Generate and hash admin password
-    const hashedAdminPassword = await hashPassword(ADMIN_USER.password);
-
-    // Insert admin user
-    await db.insert(schema.users).values({
-      ...ADMIN_USER,
-      password: hashedAdminPassword,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+    // Check if admin user already exists
+    const existingAdmin = await db.query.users.findFirst({
+      where: (user, { eq }) => eq(user.email, ADMIN_USER.email),
     });
-    console.log("✅ Admin user created");
 
-    // Generate users
+    if (!existingAdmin) {
+      // Generate and hash admin password
+      const hashedAdminPassword = await hashPassword(ADMIN_USER.password);
+
+      // Insert admin user
+      await db.insert(schema.users).values({
+        ...ADMIN_USER,
+        password: hashedAdminPassword,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      console.log("✅ Admin user created");
+    } else {
+      console.log("⏭️ Admin user already exists, skipping creation");
+    }
+
+    // Generate users (admin excluded)
     const users = await generateUsers();
-    await db.insert(schema.users).values(users);
-    console.log(`✅ ${users.length} users created`);
+    if (users.length > 0) {
+      await db.insert(schema.users).values(users);
+      console.log(`✅ ${users.length} users created`);
+    }
 
     // Get all user IDs including admin
     const allUsers = await db.query.users.findMany();
     const userIds = allUsers.map((user) => user.id);
+
+    // Check if groups already exist
+    const existingGroups = await db.query.groups.findMany();
+    if (existingGroups.length > 0) {
+      console.log(
+        "⏭️ Groups already exist, skipping creation of groups and related entities"
+      );
+      console.log("🎉 Database seeding completed successfully");
+      return;
+    }
 
     // Generate groups
     const groups = await generateGroups(userIds);
@@ -519,12 +567,9 @@ export async function seedDatabase() {
     await db.insert(schema.listItems).values(listItems);
     console.log(`✅ ${listItems.length} list items created`);
 
-    // Generate list item assignments
-    const listItemAssignments = await generateListItemAssignments(listItems);
-    await db.insert(schema.listItemAssignments).values(listItemAssignments);
-    console.log(
-      `✅ ${listItemAssignments.length} list item assignments created`
-    );
+    // Generate list item assignments (this now handles its own database insertion)
+    await generateListItemAssignments(listItems);
+    // The console log for list item assignments is now handled within the function
 
     console.log("🎉 Database seeding completed successfully");
   } catch (error) {
@@ -537,15 +582,7 @@ async function generateUsers() {
   const users = [];
   const hashedPassword = await hashPassword("password123");
 
-  // Add admin user
-  users.push({
-    id: ADMIN_USER.id,
-    name: ADMIN_USER.name,
-    email: ADMIN_USER.email,
-    password: hashedPassword,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  });
+  // Don't add admin user here since it's already inserted in seedDatabase function
 
   // Add users with Indian names
   for (let i = 0; i < SEED_CONFIG.USERS; i++) {

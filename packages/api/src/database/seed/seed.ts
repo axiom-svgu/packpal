@@ -31,7 +31,7 @@ async function main() {
     }
 
     // Reset the database first
-    await resetDatabase();
+    // await resetDatabase();
 
     // Seed the database
     await seedDatabase();
