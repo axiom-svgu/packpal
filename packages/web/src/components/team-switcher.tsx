@@ -1,4 +1,4 @@
-import { Building2, Plus } from "lucide-react";
+import { Building2 } from "lucide-react";
 import {
   SidebarMenu,
   SidebarMenuButton,
@@ -8,7 +8,6 @@ import {
 import { useGroupStore, type Group } from "@/lib/group-store";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
-import { Link } from "react-router-dom";
 import { useEffect } from "react";
 import { get } from "@/services/HttpHelper";
 import { useAuth } from "@/hooks/use-auth";

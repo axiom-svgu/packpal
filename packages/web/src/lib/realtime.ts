@@ -45,7 +45,6 @@ export function useRealtimeUpdates(options: RealtimeServiceOptions = {}) {
     }
 
     try {
-      const token = localStorage.getItem("token");
       const sseUrl = `${baseUrl}/sse`;
       const newEventSource = new EventSource(sseUrl);
 

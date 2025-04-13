@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useRealTimeItems } from "@/hooks/use-real-time-items";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,7 @@ export function RealTimeItemsList({
     pollingInterval: 30000,
   });
 
-  const { items, loading, error, refresh, realtimeConnected, lastUpdated } =
+  const { items, loading, error, refresh, lastUpdated } =
     useRealTimeItems(options);
 
   const handleRefresh = useCallback(() => {
