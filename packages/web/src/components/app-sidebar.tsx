@@ -2,7 +2,6 @@ import * as React from "react";
 import {
   Settings2,
   BarChart3,
-  ClipboardList,
   Bell,
   CalendarRange,
   GaugeCircle,
