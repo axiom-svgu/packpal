@@ -133,14 +133,21 @@ async function initializeApp() {
     });
   });
 
-  app.listen(port, () =>
-    console.info(`Server running at http://localhost:${port}`)
-  );
+  return app;
 }
 
-initializeApp().catch((error) => {
-  console.error("Failed to initialize application:", error);
-});
+// Initialize the app immediately if this is the main module
+if (require.main === module) {
+  initializeApp()
+    .then((app) => {
+      app.listen(port, () =>
+        console.info(`Server running at http://localhost:${port}`)
+      );
+    })
+    .catch((error) => {
+      console.error("Failed to initialize application:", error);
+    });
+}
 
 process.on("unhandledRejection", (reason, promise) => {
   console.error("Unhandled Rejection at:", promise, "reason:", reason);
@@ -149,3 +156,8 @@ process.on("unhandledRejection", (reason, promise) => {
 process.on("uncaughtException", (error) => {
   console.error("Uncaught Exception thrown", error);
 });
+
+// Export a function that returns the initialized app
+export default async function () {
+  return await initializeApp();
+}
