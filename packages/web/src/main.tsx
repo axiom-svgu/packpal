@@ -1,7 +1,7 @@
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
-import { Toaster } from "./components/ui/sonner";
+import { Toaster } from "./components/ui/toaster";
 
 // Import pages and layout
 import NotFound from "./pages/NotFound";
@@ -110,7 +110,7 @@ const root = createRoot(rootElement);
 
 root.render(
   <ThemeProvider>
-    <Toaster richColors closeButton />
+    <Toaster />
     <RouterProvider router={router} />
   </ThemeProvider>
 );

@@ -4,10 +4,12 @@ dotenv.config();
 
 export const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 export const JWT_EXPIRES_IN = "24h";
+export const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "";
 
 export default {
   JWT_SECRET,
   JWT_EXPIRES_IN,
+  GEMINI_API_KEY,
   DB_HOST: process.env.DB_HOST,
   DB_PORT: process.env.DB_PORT,
   DB_USER: process.env.DB_USER,

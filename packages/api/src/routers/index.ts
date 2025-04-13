@@ -7,6 +7,7 @@ import itemRouter from "./itemRouter";
 import itemAssignmentRouter from "./itemAssignmentRouter";
 import memberRouter from "./memberRouter";
 import { dashboardRouter } from "./dashboardRouter";
+import aiRouter from "./aiRouter";
 
 export async function registerRouters(app: Express) {
   const routers = [
@@ -18,6 +19,7 @@ export async function registerRouters(app: Express) {
     { path: "/item-assignments", router: itemAssignmentRouter },
     { path: "/members", router: memberRouter },
     { path: "/dashboard", router: dashboardRouter },
+    { path: "/ai", router: aiRouter },
   ];
 
   for (const { path, router } of routers) {
