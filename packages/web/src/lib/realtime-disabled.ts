@@ -23,7 +23,7 @@ interface RealtimeServiceOptions {
  * DISABLED version of the hook for subscribing to real-time updates
  * This returns static values to prevent any potential infinite loops
  */
-export function useRealtimeUpdates(options: RealtimeServiceOptions = {}) {
+export function useRealtimeUpdates(_: RealtimeServiceOptions = {}) {
   // Return static values
   return {
     connected: false,
@@ -38,11 +38,7 @@ export function useRealtimeUpdates(options: RealtimeServiceOptions = {}) {
  * DISABLED version of polling updates
  * This returns static values to prevent any potential infinite loops
  */
-export function usePollingUpdates<T>(
-  fetchFunction: () => Promise<T>,
-  intervalMs: number = 10000,
-  enabled: boolean = true
-) {
+export function usePollingUpdates<T>(fetchFunction: () => Promise<T>) {
   const [data, setData] = useState<T | null>(null);
 
   // Simple manual refresh function that only fetches once

@@ -31,8 +31,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { RealtimeStatus } from "@/components/ui/realtime-status";
-import React from "react";
 import { Badge } from "@/components/ui/badge";
 
 // Define the application pages and their details

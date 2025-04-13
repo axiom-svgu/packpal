@@ -24,8 +24,6 @@ export function RealtimeStatus({
 }: RealtimeStatusProps) {
   // Static component with no hooks - this will prevent infinite loops
   const connected = false;
-  const error = null;
-
   return (
     <TooltipProvider>
       <Tooltip>

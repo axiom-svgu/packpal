@@ -3,7 +3,6 @@ import {
   Settings2,
   BarChart3,
   ClipboardList,
-  UserCog,
   Bell,
   CalendarRange,
   GaugeCircle,
@@ -12,9 +11,6 @@ import {
   Layers,
   User,
   Users,
-  Box,
-  CheckCircle,
-  Truck,
   KanbanSquare,
 } from "lucide-react";
 

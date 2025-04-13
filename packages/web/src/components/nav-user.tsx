@@ -18,7 +18,7 @@ export function NavUser({
     email: string;
   };
 }) {
-  const { logout } = useAuth(); // Get the logout function from auth store
+  const { updateUser } = useAuth(); // Get the logout function from auth store
 
   return (
     <SidebarMenu>
@@ -35,7 +35,19 @@ export function NavUser({
               <span className="truncate font-semibold">{user.name}</span>
               <span className="truncate text-xs">{user.email}</span>
             </div>
-            <LogOut className="ml-auto size-4" onClick={logout} />{" "}
+            <LogOut
+              className="ml-auto size-4"
+              onClick={() => {
+                updateUser({
+                  name: "",
+                  email: "",
+                });
+
+                localStorage.removeItem("token");
+
+                window.location.href = "/login";
+              }}
+            />{" "}
             {/* Log out icon with click handler */}
           </SidebarMenuButton>
         </DropdownMenu>
