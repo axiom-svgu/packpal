@@ -10,12 +10,15 @@ import bodyParser from "body-parser";
 import constants from "./utils/constants";
 import { loggingMiddleware } from "./middleware/log";
 import { initializeDb } from "./database";
+
+// Create app instance
 const app = express();
 const port = constants.PORT;
 
 export const eventEmitter = new EventEmitter();
 eventEmitter.setMaxListeners(100); // Increase max listeners to handle multiple clients
 
+// Initialize app with all middleware and routes
 async function initializeApp() {
   app.use(
     bodyParser.json({
@@ -75,7 +78,6 @@ async function initializeApp() {
   await registerRouters(app);
 
   // Add SSE endpoint
-
   app.get("/sse", (req: Request, res: Response) => {
     const headers = {
       "Content-Type": "text/event-stream",
@@ -86,17 +88,14 @@ async function initializeApp() {
     res.writeHead(200, headers);
 
     // Send initial connection message
-
     const data = `data: ${JSON.stringify({
       type: "connection",
-
       message: "Connected to SSE",
     })}\n\n`;
 
     res.write(data);
 
     // Set up event listeners for different update types
-
     const eventTypes = [
       "item-update",
       "list-update",
@@ -118,7 +117,6 @@ async function initializeApp() {
     });
 
     // Handle client disconnect
-
     req.on("close", () => {
       eventTypes.forEach((type) => {
         eventEmitter.off(type, handlers[type]);
@@ -136,7 +134,7 @@ async function initializeApp() {
   return app;
 }
 
-// Initialize the app immediately if this is the main module
+// For local development
 if (require.main === module) {
   initializeApp()
     .then((app) => {
@@ -157,7 +155,13 @@ process.on("uncaughtException", (error) => {
   console.error("Uncaught Exception thrown", error);
 });
 
-// Export a function that returns the initialized app
-export default async function () {
-  return await initializeApp();
+// Initialize the app
+let serverApp: express.Express | null = null;
+
+// This is the format Vercel expects for serverless functions
+export default async function handler(req: Request, res: Response) {
+  if (!serverApp) {
+    serverApp = await initializeApp();
+  }
+  return serverApp(req, res);
 }
