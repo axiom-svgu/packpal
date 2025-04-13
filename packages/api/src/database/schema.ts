@@ -32,6 +32,15 @@ export const itemStatusEnum = pgEnum("item_status", [
   "delivered",
 ]);
 
+// Define notification types
+export const notificationTypeEnum = pgEnum("notification_type", [
+  "assignment",
+  "item_update",
+  "list_update",
+  "group_update",
+  "system",
+]);
+
 // ============================================================================
 // Base Tables
 // ============================================================================
@@ -124,6 +133,36 @@ export const itemAssignments = pgTable("item_assignment", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+// ============================================================================
+// Notification Tables
+// ============================================================================
+
+// Notifications table
+export const notifications = pgTable(
+  "notification",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id),
+    title: varchar("title", { length: 255 }).notNull(),
+    message: text("message").notNull(),
+    type: notificationTypeEnum("type").notNull().default("system"),
+    isRead: boolean("is_read").default(false).notNull(),
+    relatedItemId: uuid("related_item_id").references(() => items.id),
+    relatedListId: uuid("related_list_id").references(() => lists.id),
+    relatedGroupId: uuid("related_group_id").references(() => groups.id),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => {
+    return {
+      userIdx: index("notification_user_id_idx").on(table.userId),
+      typeIdx: index("notification_type_idx").on(table.type),
+      readIdx: index("notification_is_read_idx").on(table.isRead),
+    };
+  }
+);
+
 // Define relations after all tables are defined
 // User relations
 export const usersRelations = relations(users, ({ many }) => ({
@@ -132,6 +171,7 @@ export const usersRelations = relations(users, ({ many }) => ({
     relationName: "userAssignedByItems",
   }),
   groups: many(groupMembers),
+  notifications: many(notifications),
 }));
 
 // Item relations
@@ -328,6 +368,30 @@ export const listItemAssignmentsRelations = relations(
 );
 
 // ============================================================================
+// Notification relations
+// ============================================================================
+
+// Notification relations
+export const notificationsRelations = relations(notifications, ({ one }) => ({
+  user: one(users, {
+    fields: [notifications.userId],
+    references: [users.id],
+  }),
+  relatedItem: one(items, {
+    fields: [notifications.relatedItemId],
+    references: [items.id],
+  }),
+  relatedList: one(lists, {
+    fields: [notifications.relatedListId],
+    references: [lists.id],
+  }),
+  relatedGroup: one(groups, {
+    fields: [notifications.relatedGroupId],
+    references: [groups.id],
+  }),
+}));
+
+// ============================================================================
 // Zod Schemas
 // ============================================================================
 
@@ -348,6 +412,10 @@ export const insertListItemAssignmentSchema =
   createInsertSchema(listItemAssignments);
 export const selectListItemAssignmentSchema =
   createSelectSchema(listItemAssignments);
+
+// Notification related schemas
+export const insertNotificationSchema = createInsertSchema(notifications);
+export const selectNotificationSchema = createSelectSchema(notifications);
 
 // ============================================================================
 // Extended Validation Schemas
@@ -445,3 +513,13 @@ export type ItemAssignment = InferSelectModel<typeof itemAssignments>;
 export type NewItemAssignment = InferInsertModel<typeof itemAssignments>;
 export const itemAssignmentSchema = createSelectSchema(itemAssignments);
 export const insertItemAssignmentSchema = createInsertSchema(itemAssignments);
+
+// Notification types
+export type Notification = InferSelectModel<typeof notifications>;
+export type NewNotification = InferInsertModel<typeof notifications>;
+export type NotificationType =
+  | "assignment"
+  | "item_update"
+  | "list_update"
+  | "group_update"
+  | "system";

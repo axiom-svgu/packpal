@@ -100,6 +100,8 @@ async function initializeApp() {
       "category-update",
       "group-update",
       "assignment-update",
+      "notification-created",
+      "notification-update",
     ];
 
     const handlers: Record<string, (data: any) => void> = {};

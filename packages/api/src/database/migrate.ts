@@ -3,6 +3,7 @@ import postgres from "postgres";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import * as schema from "./schema";
 import * as dotenv from "dotenv";
+import { addNotificationsTable } from "./migrations/add_notifications_table";
 
 // Load environment variables
 dotenv.config();
@@ -41,6 +42,11 @@ async function main() {
 
   try {
     await migrate(db, { migrationsFolder: "./src/database/migrations" });
+
+    // Run manual migrations
+    console.log("Running manual migrations...");
+    await addNotificationsTable();
+
     console.log("Migrations completed successfully");
     process.exit(0);
   } catch (error) {
