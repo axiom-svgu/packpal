@@ -45,7 +45,7 @@ export function NavUser({
 
                 localStorage.removeItem("token");
 
-                window.location.href = "/";
+                window.location.href = "/signin";
               }}
             />{" "}
             {/* Log out icon with click handler */}
