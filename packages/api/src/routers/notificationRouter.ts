@@ -1,6 +1,7 @@
 import express from "express";
 import { db } from "../database";
-import { notifications, eq, and, desc } from "../database/schema";
+import { notifications } from "../database/schema";
+import { eq, and, desc } from "drizzle-orm";
 import { eventEmitter } from "../app";
 import { count } from "drizzle-orm";
 import { authMiddleware } from "../middleware/auth";
@@ -91,10 +92,16 @@ router.put("/:id/read", async (req, res) => {
         )
       );
 
-    // Check if any rows were affected
-    const rowsAffected = result.rowCount || 0;
+    // Check if notification was updated
+    const updatedNotification = await db.query.notifications.findFirst({
+      where: and(
+        eq(notifications.id, notificationId),
+        eq(notifications.userId, userId),
+        eq(notifications.isRead, true)
+      ),
+    });
 
-    if (rowsAffected === 0) {
+    if (!updatedNotification) {
       return res.status(404).json({
         message: "Notification not found or not owned by user",
         success: false,
@@ -126,7 +133,15 @@ router.put("/mark-all-read", async (req, res) => {
   try {
     const userId = req.user!.id;
 
-    const result = await db
+    // Get count of unread notifications before update
+    const beforeCount = await db
+      .select({ count: count() })
+      .from(notifications)
+      .where(
+        and(eq(notifications.userId, userId), eq(notifications.isRead, false))
+      );
+
+    await db
       .update(notifications)
       .set({ isRead: true })
       .where(
@@ -142,7 +157,7 @@ router.put("/mark-all-read", async (req, res) => {
     return res.status(200).json({
       message: "All notifications marked as read",
       success: true,
-      updatedCount: result.rowCount || 0,
+      updatedCount: beforeCount[0].count,
     });
   } catch (error) {
     console.error("Error marking all notifications as read:", error);
@@ -159,7 +174,22 @@ router.delete("/:id", async (req, res) => {
     const userId = req.user!.id;
     const notificationId = req.params.id;
 
-    const result = await db
+    // Check if notification exists before deletion
+    const notificationExists = await db.query.notifications.findFirst({
+      where: and(
+        eq(notifications.id, notificationId),
+        eq(notifications.userId, userId)
+      ),
+    });
+
+    if (!notificationExists) {
+      return res.status(404).json({
+        message: "Notification not found or not owned by user",
+        success: false,
+      });
+    }
+
+    await db
       .delete(notifications)
       .where(
         and(
@@ -167,16 +197,6 @@ router.delete("/:id", async (req, res) => {
           eq(notifications.userId, userId)
         )
       );
-
-    // Check if any rows were affected
-    const rowsAffected = result.rowCount || 0;
-
-    if (rowsAffected === 0) {
-      return res.status(404).json({
-        message: "Notification not found or not owned by user",
-        success: false,
-      });
-    }
 
     // Emit notification-update event
     eventEmitter.emit("notification-update", {
