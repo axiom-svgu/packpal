@@ -27,7 +27,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   return (
     <SidebarProvider>
       <div className="flex min-h-screen flex-col overflow-hidden bg-background">
-        <div className="flex w-full">
+        <div className="flex w-screen">
           {sidebar}
           <SidebarInset className="flex-1 w-full">
             <TopBar />
