@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios from "axios";
 import { Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -76,21 +75,24 @@ export default function AiPackingAssistant() {
     setSuggestions(null);
 
     try {
-      const response = await axios.post(
-        `${API_URL}/ai/packing-suggestions`,
-        values
-      );
+      const response = await fetch(`${API_URL}/ai/packing-suggestions`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      });
 
-      if (response.data.success) {
-        setSuggestions(response.data.data);
+      const data = await response.json();
+
+      if (data.success) {
+        setSuggestions(data.data);
         toast({
           title: "Success!",
           description: "Packing suggestions generated successfully.",
         });
       } else {
-        throw new Error(
-          response.data.message || "Failed to generate suggestions"
-        );
+        throw new Error(data.message || "Failed to generate suggestions");
       }
     } catch (error: any) {
       console.error("Error generating packing suggestions:", error);
