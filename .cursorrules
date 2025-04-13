@@ -4,7 +4,7 @@ This monorepo contains three projects:
 
 - **App**: A Vite + React application with React Router DOM, Tailwind, and ShadCN
 - **Landing**: A Vite + React landing page using the same tech stack as the App
-- **API**: A Bun + ElysiaJS backend with TypeORM
+- **API**: A Bun + ExpressJS backend with Drizzle
 
 ## Tech Stack
 
@@ -15,7 +15,7 @@ This monorepo contains three projects:
 - React Router DOM
 - Tailwind CSS
 - ShadCN UI
-- ElysiaJS
+- ExpressJS
 - TypeORM
 
 ## Development
@@ -23,7 +23,7 @@ This monorepo contains three projects:
 This project uses:
 
 - Express.js for the web server
-- TypeORM for database management
+- Drizzle for database management
 - PostgreSQL as the database
 - Zod for validation
 - Bun as the JavaScript runtime
