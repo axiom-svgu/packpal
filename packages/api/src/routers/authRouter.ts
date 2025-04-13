@@ -8,7 +8,7 @@ import {
   items,
 } from "../database/schema";
 import { eq, and, count } from "drizzle-orm";
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 import { z } from "zod";
 import jwt from "jsonwebtoken";
 import { authMiddleware } from "../middleware/auth";
@@ -109,16 +109,17 @@ router.post("/login", async (req, res) => {
 
     if (!user) {
       return res.status(401).json({
-        message: "Invalid email or password",
+        message: "Invalid email",
         success: false,
       });
     }
 
     // Verify password
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return res.status(401).json({
-        message: "Invalid email or password",
+        message: "Invalid password",
         success: false,
       });
     }

@@ -78,49 +78,49 @@ export default function SettingsPage() {
     e.preventDefault();
 
     // Validate passwords match
-    if (newPassword !== confirmPassword) {
-      toast({
-        title: "Passwords Don't Match",
-        description: "New password and confirmation password must match",
-        variant: "destructive",
-      });
-      return;
-    }
+    // if (newPassword !== confirmPassword) {
+    //   toast({
+    //     title: "Passwords Don't Match",
+    //     description: "New password and confirmation password must match",
+    //     variant: "destructive",
+    //   });
+    //   return;
+    // }
 
-    setIsLoading(true);
+    // setIsLoading(true);
 
-    try {
-      const response = await userService.updateProfile({
-        currentPassword,
-        newPassword,
-      });
+    // try {
+    //   const response = await userService.updateProfile({
+    //     currentPassword,
+    //     newPassword,
+    //   });
 
-      if (response.data?.success) {
-        toast({
-          title: "Password Updated",
-          description: "Your password has been updated successfully.",
-        });
+    //   if (response.data?.success) {
+    //     toast({
+    //       title: "Password Updated",
+    //       description: "Your password has been updated successfully.",
+    //     });
 
-        // Clear password fields
-        setCurrentPassword("");
-        setNewPassword("");
-        setConfirmPassword("");
-      } else {
-        toast({
-          title: "Update Failed",
-          description: response.error || "Failed to update password",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Update Failed",
-        description: "An error occurred while updating your password",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    //     // Clear password fields
+    //     setCurrentPassword("");
+    //     setNewPassword("");
+    //     setConfirmPassword("");
+    //   } else {
+    //     toast({
+    //       title: "Update Failed",
+    //       description: response.error || "Failed to update password",
+    //       variant: "destructive",
+    //     });
+    //   }
+    // } catch (error) {
+    //   toast({
+    //     title: "Update Failed",
+    //     description: "An error occurred while updating your password",
+    //     variant: "destructive",
+    //   });
+    // } finally {
+    //   setIsLoading(false);
+    // }
   };
 
   return (
