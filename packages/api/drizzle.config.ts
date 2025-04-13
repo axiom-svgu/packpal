@@ -13,6 +13,10 @@ export default {
     user: process.env.DB_USER!,
     password: process.env.DB_PASS!,
     database: process.env.DB_NAME!,
-    ssl: false,
+    ssl: process.env.DATABASE_URL
+      ? {
+          rejectUnauthorized: false,
+        }
+      : false,
   },
 } satisfies Config;
