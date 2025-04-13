@@ -1,8 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { Loader2, RefreshCcw } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
+import { useGroupStore } from "@/lib/group-store";
+import { createItem } from "@/services/ItemService";
+import { createAssignment } from "@/services/ItemAssignmentService";
+import { fetchCategoriesByGroup } from "@/services/CategoryService";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -55,7 +60,278 @@ type AiPackingFormValues = z.infer<typeof aiPackingFormSchema>;
 export default function AiPackingAssistant() {
   const [suggestions, setSuggestions] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [addingToList, setAddingToList] = useState<Record<string, boolean>>({});
   const { toast } = useToast();
+  const { user } = useAuth();
+  const { currentGroup } = useGroupStore();
+
+  // Cache key prefix for localStorage
+  const CACHE_KEY_PREFIX = "ai_packing_cache_";
+  // Cache expiration time (24 hours in milliseconds)
+  const CACHE_EXPIRATION = 24 * 60 * 60 * 1000;
+
+  // Function to generate a cache key from form values
+  const generateCacheKey = (values: AiPackingFormValues): string => {
+    return (
+      CACHE_KEY_PREFIX +
+      JSON.stringify({
+        eventType: values.eventType,
+        weatherForecast: values.weatherForecast,
+        duration: values.duration,
+        people: values.people,
+        // Exclude special requirements from cache key as they're often unique
+      })
+    );
+  };
+
+  // Function to get cached suggestions if available
+  const getCachedSuggestions = (cacheKey: string): any | null => {
+    try {
+      const cachedData = localStorage.getItem(cacheKey);
+      if (!cachedData) return null;
+
+      const { data, timestamp } = JSON.parse(cachedData);
+      const now = Date.now();
+
+      // Check if cache has expired
+      if (now - timestamp > CACHE_EXPIRATION) {
+        localStorage.removeItem(cacheKey);
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.error("Error reading from cache:", error);
+      return null;
+    }
+  };
+
+  // Function to cache suggestions
+  const cacheSuggestions = (cacheKey: string, data: any): void => {
+    try {
+      const cacheEntry = {
+        data,
+        timestamp: Date.now(),
+      };
+      localStorage.setItem(cacheKey, JSON.stringify(cacheEntry));
+    } catch (error) {
+      console.error("Error saving to cache:", error);
+      // If storage fails (e.g., quota exceeded), clear some old cache entries
+      clearOldCacheEntries();
+    }
+  };
+
+  // Function to clear old cache entries if needed
+  const clearOldCacheEntries = (): void => {
+    try {
+      // Get all keys from localStorage
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith(CACHE_KEY_PREFIX)) {
+          try {
+            const cachedData = localStorage.getItem(key);
+            if (cachedData) {
+              const { timestamp } = JSON.parse(cachedData);
+              const now = Date.now();
+
+              // Remove if older than expiration time
+              if (now - timestamp > CACHE_EXPIRATION) {
+                localStorage.removeItem(key);
+              }
+            }
+          } catch (e) {
+            // If entry is corrupted, remove it
+            localStorage.removeItem(key);
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error clearing cache:", error);
+    }
+  };
+
+  // Fetch categories when the component mounts
+  useEffect(() => {
+    if (currentGroup?.id) {
+      fetchCategories();
+    }
+  }, [currentGroup?.id]);
+
+  const fetchCategories = async () => {
+    try {
+      if (!currentGroup?.id) return;
+      const fetchedCategories = await fetchCategoriesByGroup(currentGroup.id);
+      setCategories(fetchedCategories);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch categories",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Function to handle adding an item to the packing list
+  const handleAddToList = async (item: any, category: string) => {
+    if (!user || !currentGroup) {
+      toast({
+        title: "Error",
+        description: "You must be logged in and have a group selected",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (categories.length === 0) {
+      toast({
+        title: "Error",
+        description: "Please create at least one category first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Set loading state for this specific item
+    setAddingToList((prev) => ({
+      ...prev,
+      [`${category}-${item.name}`]: true,
+    }));
+
+    try {
+      // Find appropriate category ID, or use the first one if none match
+      let categoryId = categories[0]?.id;
+
+      // Try to find a matching category
+      const matchingCategory = categories.find(
+        (cat) => cat.name.toLowerCase() === category.toLowerCase()
+      );
+
+      if (matchingCategory) {
+        categoryId = matchingCategory.id;
+      }
+
+      // Ensure quantity and priority are valid
+      const quantity = String(item.quantity || 1);
+      const priority = String(item.priority || "Medium");
+
+      // Create the item
+      const newItem = await createItem({
+        name: item.name,
+        description: `Priority: ${priority}`,
+        quantity: quantity,
+        categoryId,
+        groupId: currentGroup.id,
+      });
+
+      // Assign the item to the current user
+      await createAssignment({
+        itemId: newItem.id,
+        assignedTo: user.id,
+        status: "to_pack",
+      });
+
+      toast({
+        title: "Success",
+        description: `${item.name} added to your packing list`,
+      });
+    } catch (error) {
+      console.error("Error adding item to list:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add item to packing list",
+        variant: "destructive",
+      });
+    } finally {
+      // Clear loading state for this specific item
+      setAddingToList((prev) => ({
+        ...prev,
+        [`${category}-${item.name}`]: false,
+      }));
+    }
+  };
+
+  // Function to handle adding all items to the packing list
+  const handleAddAllToList = async () => {
+    if (!user || !currentGroup) {
+      toast({
+        title: "Error",
+        description: "You must be logged in and have a group selected",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (categories.length === 0) {
+      toast({
+        title: "Error",
+        description: "Please create at least one category first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Show overall loading toast
+    toast({
+      title: "Adding items",
+      description: "Adding all items to your packing list...",
+    });
+
+    try {
+      // Loop through all categories and items
+      for (const [category, items] of Object.entries(suggestions)) {
+        // Find appropriate category ID
+        let categoryId = categories[0]?.id;
+        const matchingCategory = categories.find(
+          (cat) => cat.name.toLowerCase() === category.toLowerCase()
+        );
+
+        if (matchingCategory) {
+          categoryId = matchingCategory.id;
+        }
+
+        // Add each item in the category
+        for (const item of items as any[]) {
+          try {
+            // Ensure quantity and priority are valid
+            const quantity = String(item.quantity || 1);
+            const priority = String(item.priority || "Medium");
+
+            // Create the item
+            const newItem = await createItem({
+              name: item.name,
+              description: `Priority: ${priority}`,
+              quantity: quantity,
+              categoryId,
+              groupId: currentGroup.id,
+            });
+
+            // Assign the item to the current user
+            await createAssignment({
+              itemId: newItem.id,
+              assignedTo: user.id,
+              status: "to_pack",
+            });
+          } catch (error) {
+            console.error(`Error adding item ${item.name}:`, error);
+          }
+        }
+      }
+
+      toast({
+        title: "Success",
+        description: "All items added to your packing list",
+      });
+    } catch (error) {
+      console.error("Error adding all items:", error);
+      toast({
+        title: "Error",
+        description: "Some items couldn't be added to your packing list",
+        variant: "destructive",
+      });
+    }
+  };
 
   // Initialize form
   const form = useForm<AiPackingFormValues>({
@@ -71,28 +347,67 @@ export default function AiPackingAssistant() {
 
   // Submit handler
   async function onSubmit(values: AiPackingFormValues) {
+    await fetchSuggestions(values, false);
+  }
+
+  // Function to normalize the AI response data
+  const normalizeResponseData = (data: any): any => {
+    const normalizedData: any = {};
+
+    for (const [category, items] of Object.entries(data)) {
+      normalizedData[category] = (items as any[]).map((item) => ({
+        name: item.name || "Unnamed Item",
+        quantity: item.quantity || 1,
+        priority: item.priority || "Medium",
+      }));
+    }
+
+    return normalizedData;
+  };
+
+  // Function to fetch suggestions with optional cache bypass
+  async function fetchSuggestions(
+    values: AiPackingFormValues,
+    forceRefresh = false
+  ) {
     setLoading(true);
     setSuggestions(null);
 
     try {
-      const response = await fetch(`${API_URL}/ai/packing-suggestions`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(values),
-      });
+      const cacheKey = generateCacheKey(values);
+      const cachedSuggestions = !forceRefresh
+        ? getCachedSuggestions(cacheKey)
+        : null;
 
-      const data = await response.json();
-
-      if (data.success) {
-        setSuggestions(data.data);
+      if (cachedSuggestions) {
+        setSuggestions(cachedSuggestions);
         toast({
           title: "Success!",
-          description: "Packing suggestions generated successfully.",
+          description: "Packing suggestions retrieved from cache.",
         });
       } else {
-        throw new Error(data.message || "Failed to generate suggestions");
+        const response = await fetch(`${API_URL}/ai/packing-suggestions`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(values),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          // Normalize the response data to ensure no null values
+          const normalizedData = normalizeResponseData(data.data);
+          setSuggestions(normalizedData);
+          cacheSuggestions(cacheKey, normalizedData);
+          toast({
+            title: "Success!",
+            description: "Packing suggestions generated successfully.",
+          });
+        } else {
+          throw new Error(data.message || "Failed to generate suggestions");
+        }
       }
     } catch (error: any) {
       console.error("Error generating packing suggestions:", error);
@@ -283,11 +598,26 @@ export default function AiPackingAssistant() {
       {suggestions && (
         <Card>
           <CardHeader>
-            <CardTitle>AI-Generated Packing List</CardTitle>
-            <CardDescription>
-              Here are the suggested items for your trip. You can add these to
-              your packing list.
-            </CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>AI-Generated Packing List</CardTitle>
+                <CardDescription>
+                  Here are the suggested items for your trip. You can add these
+                  to your packing list.
+                </CardDescription>
+              </div>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => fetchSuggestions(form.getValues(), true)}
+                disabled={loading}
+                title="Refresh suggestions from API"
+              >
+                <RefreshCcw
+                  className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
+                />
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -309,8 +639,20 @@ export default function AiPackingAssistant() {
                               Qty: {item.quantity} • Priority: {item.priority}
                             </p>
                           </div>
-                          <Button variant="outline" size="sm">
-                            Add to List
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleAddToList(item, category)}
+                            disabled={addingToList[`${category}-${item.name}`]}
+                          >
+                            {addingToList[`${category}-${item.name}`] ? (
+                              <>
+                                <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                                Adding...
+                              </>
+                            ) : (
+                              "Add to List"
+                            )}
                           </Button>
                         </div>
                       ))}
@@ -324,7 +666,7 @@ export default function AiPackingAssistant() {
             <Button variant="outline" onClick={() => setSuggestions(null)}>
               Clear Results
             </Button>
-            <Button>Add All to List</Button>
+            <Button onClick={handleAddAllToList}>Add All to List</Button>
           </CardFooter>
         </Card>
       )}

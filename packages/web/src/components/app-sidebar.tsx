@@ -47,14 +47,9 @@ const roleBasedNavigation = {
       icon: KanbanSquare,
     },
     {
-      title: "Packing Lists",
-      url: "/packing-lists",
-      icon: ClipboardList,
-    },
-    {
-      title: "Assign Items",
-      url: "/assign-items",
-      icon: Package,
+      title: "Suggest Items",
+      url: "/suggest-items",
+      icon: UserPlus,
     },
     {
       title: "Create Event/Trip",
@@ -95,14 +90,9 @@ const roleBasedNavigation = {
       icon: KanbanSquare,
     },
     {
-      title: "Packing Lists",
-      url: "/packing-lists",
-      icon: ClipboardList,
-    },
-    {
-      title: "Assign Items",
-      url: "/assign-items",
-      icon: Package,
+      title: "Suggest Items",
+      url: "/suggest-items",
+      icon: UserPlus,
     },
     {
       title: "Manage Categories",
@@ -143,11 +133,6 @@ const roleBasedNavigation = {
       icon: KanbanSquare,
     },
     {
-      title: "Packing Lists",
-      url: "/packing-lists",
-      icon: ClipboardList,
-    },
-    {
       title: "My Items",
       url: "/my-items",
       icon: Package,
@@ -184,11 +169,6 @@ const roleBasedNavigation = {
       title: "Item Tracking",
       url: "/kanban",
       icon: KanbanSquare,
-    },
-    {
-      title: "Packing Lists",
-      url: "/packing-lists",
-      icon: ClipboardList,
     },
     {
       title: "Group Progress",

@@ -12,6 +12,39 @@ const modelConfig = {
   maxOutputTokens: 2048,
 };
 
+// Available Gemini models to try in order of preference
+const GEMINI_MODELS = ["gemini-1.5-pro", "gemini-pro", "gemini-pro-vision"];
+
+/**
+ * Try to generate content with different model versions if one fails
+ * @param prompt The prompt to send to the model
+ * @returns Generated content text
+ */
+async function generateWithFallback(prompt: string): Promise<string> {
+  let lastError = null;
+
+  // Try each model in order until one works
+  for (const modelName of GEMINI_MODELS) {
+    try {
+      const model = genAI.getGenerativeModel({
+        model: modelName,
+        generationConfig: modelConfig,
+      });
+
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      return response.text();
+    } catch (error: any) {
+      console.warn(`Error with model ${modelName}:`, error.message);
+      lastError = error;
+      // Continue to the next model
+    }
+  }
+
+  // If we get here, all models failed
+  throw lastError || new Error("All Gemini models failed to generate content");
+}
+
 /**
  * Generate packing suggestions based on trip details
  * @param eventType - Type of event (camping, business trip, beach vacation, etc.)
@@ -59,16 +92,8 @@ export async function generatePackingSuggestions(
     Format the response as a structured JSON object with categories as keys and arrays of items as values.
     `;
 
-    // Use Gemini Pro model
-    const model = genAI.getGenerativeModel({
-      model: "gemini-pro",
-      generationConfig: modelConfig,
-    });
-
-    // Generate content
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    // Generate content with fallback
+    const text = await generateWithFallback(prompt);
 
     // Extract JSON from the response
     let jsonStr = text.trim();
@@ -111,16 +136,8 @@ export async function generatePackingOptimizationSuggestions(
     Format the response as JSON.
     `;
 
-    // Use Gemini Pro model
-    const model = genAI.getGenerativeModel({
-      model: "gemini-pro",
-      generationConfig: modelConfig,
-    });
-
-    // Generate content
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    // Generate content with fallback
+    const text = await generateWithFallback(prompt);
 
     // Extract JSON from the response
     let jsonStr = text.trim();
