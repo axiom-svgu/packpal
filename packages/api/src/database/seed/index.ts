@@ -26,6 +26,7 @@ const SEED_CONFIG = {
   LISTS_PER_GROUP: 2,
   ITEMS_PER_LIST: 6,
   ASSIGNMENTS_PER_LIST_ITEM: 1,
+  BATCH_SIZE: 100, // Batch size for database operations
 };
 
 // Indian names in English
@@ -165,9 +166,29 @@ const TRAVEL_ITEMS = [
 ];
 
 /**
+ * Insert data in batches
+ */
+async function batchInsert(table: any, data: any[]) {
+  const batchSize = SEED_CONFIG.BATCH_SIZE;
+  const batches = Math.ceil(data.length / batchSize);
+
+  for (let i = 0; i < batches; i++) {
+    const start = i * batchSize;
+    const end = Math.min(start + batchSize, data.length);
+    const batch = data.slice(start, end);
+
+    if (batch.length > 0) {
+      await db.insert(table).values(batch);
+    }
+  }
+
+  return data.length;
+}
+
+/**
  * Generate random groups
  */
-async function generateGroups(userIds: string[]) {
+function generateGroups(userIds: string[]) {
   const groups = [];
 
   for (let i = 0; i < SEED_CONFIG.GROUPS; i++) {
@@ -190,7 +211,7 @@ async function generateGroups(userIds: string[]) {
 /**
  * Generate random group members
  */
-async function generateGroupMembers(groups: any[], userIds: string[]) {
+function generateGroupMembers(groups: any[], userIds: string[]) {
   const members = [];
 
   for (const group of groups) {
@@ -232,16 +253,23 @@ async function generateGroupMembers(groups: any[], userIds: string[]) {
 /**
  * Generate random categories
  */
-async function generateCategories(groups: any[]) {
+function generateCategories(groups: any[], groupMembers: any[]) {
   const categories = [];
 
-  for (const group of groups) {
-    for (let i = 0; i < SEED_CONFIG.CATEGORIES_PER_GROUP; i++) {
-      const groupMembers = await db.query.groupMembers.findMany({
-        where: (gm, { eq }) => eq(gm.groupId, group.id),
-      });
+  // Create a map of groupId to member userIds for faster lookup
+  const groupMembersMap = new Map();
+  for (const member of groupMembers) {
+    if (!groupMembersMap.has(member.groupId)) {
+      groupMembersMap.set(member.groupId, []);
+    }
+    groupMembersMap.get(member.groupId).push(member.userId);
+  }
 
-      const memberIds = groupMembers.map((member) => member.userId);
+  for (const group of groups) {
+    const memberIds = groupMembersMap.get(group.id) || [];
+    if (memberIds.length === 0) continue;
+
+    for (let i = 0; i < SEED_CONFIG.CATEGORIES_PER_GROUP; i++) {
       const createdBy = getRandomItem(memberIds);
       const categoryName = TRAVEL_CATEGORIES[i % TRAVEL_CATEGORIES.length];
 
@@ -263,23 +291,36 @@ async function generateCategories(groups: any[]) {
 /**
  * Generate random items
  */
-async function generateItems(categories: any[]) {
+function generateItems(categories: any[], groupMembers: any[]) {
   const items = [];
 
-  for (const category of categories) {
-    for (let i = 0; i < SEED_CONFIG.ITEMS_PER_CATEGORY; i++) {
-      const groupMembers = await db.query.groupMembers.findMany({
-        where: (gm, { eq }) => eq(gm.groupId, category.groupId),
-      });
+  // Create a map of groupId to member userIds for faster lookup
+  const groupMembersMap = new Map();
+  for (const member of groupMembers) {
+    if (!groupMembersMap.has(member.groupId)) {
+      groupMembersMap.set(member.groupId, []);
+    }
+    groupMembersMap.get(member.groupId).push(member.userId);
+  }
 
-      const memberIds = groupMembers.map((member) => member.userId);
+  // Group categories by name for faster lookup
+  const categorizedItems: Record<string, (typeof TRAVEL_ITEMS)[0][]> = {};
+  TRAVEL_ITEMS.forEach((item) => {
+    if (!categorizedItems[item.category]) {
+      categorizedItems[item.category] = [];
+    }
+    categorizedItems[item.category].push(item);
+  });
+
+  for (const category of categories) {
+    const memberIds = groupMembersMap.get(category.groupId) || [];
+    if (memberIds.length === 0) continue;
+
+    for (let i = 0; i < SEED_CONFIG.ITEMS_PER_CATEGORY; i++) {
       const createdBy = getRandomItem(memberIds);
 
-      // Filter travel items by category
-      const categoryItems = TRAVEL_ITEMS.filter(
-        (item) => item.category === category.name
-      );
-
+      // Get items for this category
+      const categoryItems = categorizedItems[category.name] || [];
       const selectedItem = categoryItems[i % categoryItems.length] || {
         name: faker.commerce.productName(),
         category: category.name,
@@ -309,15 +350,22 @@ async function generateItems(categories: any[]) {
 /**
  * Generate random item assignments
  */
-async function generateItemAssignments(items: any[]) {
+function generateItemAssignments(items: any[], groupMembers: any[]) {
   const assignments = [];
 
-  for (const item of items) {
-    const groupMembers = await db.query.groupMembers.findMany({
-      where: (gm, { eq }) => eq(gm.groupId, item.groupId),
-    });
+  // Create a map of groupId to member userIds for faster lookup
+  const groupMembersMap = new Map();
+  for (const member of groupMembers) {
+    if (!groupMembersMap.has(member.groupId)) {
+      groupMembersMap.set(member.groupId, []);
+    }
+    groupMembersMap.get(member.groupId).push(member.userId);
+  }
 
-    const memberIds = groupMembers.map((member) => member.userId);
+  for (const item of items) {
+    const memberIds = groupMembersMap.get(item.groupId) || [];
+    if (memberIds.length === 0) continue;
+
     const assignmentCount = Math.min(
       SEED_CONFIG.ITEM_ASSIGNMENTS_PER_ITEM,
       memberIds.length
@@ -348,16 +396,23 @@ async function generateItemAssignments(items: any[]) {
 /**
  * Generate random lists
  */
-async function generateLists(groups: any[]) {
+function generateLists(groups: any[], groupMembers: any[]) {
   const lists = [];
 
-  for (const group of groups) {
-    for (let i = 0; i < SEED_CONFIG.LISTS_PER_GROUP; i++) {
-      const groupMembers = await db.query.groupMembers.findMany({
-        where: (gm, { eq }) => eq(gm.groupId, group.id),
-      });
+  // Create a map of groupId to member userIds for faster lookup
+  const groupMembersMap = new Map();
+  for (const member of groupMembers) {
+    if (!groupMembersMap.has(member.groupId)) {
+      groupMembersMap.set(member.groupId, []);
+    }
+    groupMembersMap.get(member.groupId).push(member.userId);
+  }
 
-      const memberIds = groupMembers.map((member) => member.userId);
+  for (const group of groups) {
+    const memberIds = groupMembersMap.get(group.id) || [];
+    if (memberIds.length === 0) continue;
+
+    for (let i = 0; i < SEED_CONFIG.LISTS_PER_GROUP; i++) {
       const createdBy = getRandomItem(memberIds);
 
       lists.push({
@@ -379,16 +434,29 @@ async function generateLists(groups: any[]) {
 /**
  * Generate random list items
  */
-async function generateListItems(lists: any[]) {
+function generateListItems(lists: any[], groupMembers: any[]) {
   const listItems = [];
 
-  for (const list of lists) {
-    for (let i = 0; i < SEED_CONFIG.ITEMS_PER_LIST; i++) {
-      const groupMembers = await db.query.groupMembers.findMany({
-        where: (gm, { eq }) => eq(gm.groupId, list.groupId),
-      });
+  // Create a map of groupId to member userIds for faster lookup
+  const groupMembersMap = new Map();
+  for (const member of groupMembers) {
+    if (!groupMembersMap.has(member.groupId)) {
+      groupMembersMap.set(member.groupId, []);
+    }
+    groupMembersMap.get(member.groupId).push(member.userId);
+  }
 
-      const memberIds = groupMembers.map((member) => member.userId);
+  // Create a map of listId to groupId for faster lookup
+  const listGroupMap = new Map();
+  for (const list of lists) {
+    listGroupMap.set(list.id, list.groupId);
+  }
+
+  for (const list of lists) {
+    const memberIds = groupMembersMap.get(list.groupId) || [];
+    if (memberIds.length === 0) continue;
+
+    for (let i = 0; i < SEED_CONFIG.ITEMS_PER_LIST; i++) {
       const createdBy = getRandomItem(memberIds);
       const statusValues: ItemStatus[] = ["to_pack", "packed", "delivered"];
       const randomStatus = getRandomItem(statusValues);
@@ -419,23 +487,37 @@ async function generateListItems(lists: any[]) {
 /**
  * Generate random list item assignments
  */
-async function generateListItemAssignments(listItems: any[]) {
+function generateListItemAssignments(
+  listItems: any[],
+  lists: any[],
+  groupMembers: any[]
+) {
   const assignments = [];
-  const batchSize = 20; // Process in smaller batches
-  let totalAssignmentsCreated = 0;
+
+  // Create a map of groupId to member userIds for faster lookup
+  const groupMembersMap = new Map();
+  for (const member of groupMembers) {
+    if (!groupMembersMap.has(member.groupId)) {
+      groupMembersMap.set(member.groupId, []);
+    }
+    groupMembersMap.get(member.groupId).push(member.userId);
+  }
+
+  // Create a map of listId to groupId for faster lookup
+  const listGroupMap = new Map();
+  for (const list of lists) {
+    listGroupMap.set(list.id, list.groupId);
+  }
 
   for (const listItem of listItems) {
-    const list = await db.query.lists.findFirst({
-      where: (l, { eq }) => eq(l.id, listItem.listId),
-    });
+    const listId = listItem.listId;
+    const groupId = listGroupMap.get(listId);
 
-    if (!list) continue;
+    if (!groupId) continue;
 
-    const groupMembers = await db.query.groupMembers.findMany({
-      where: (gm, { eq }) => eq(gm.groupId, list.groupId),
-    });
+    const memberIds = groupMembersMap.get(groupId) || [];
+    if (memberIds.length === 0) continue;
 
-    const memberIds = groupMembers.map((member) => member.userId);
     const assignmentCount = Math.min(
       SEED_CONFIG.ASSIGNMENTS_PER_LIST_ITEM,
       memberIds.length
@@ -453,34 +535,34 @@ async function generateListItemAssignments(listItems: any[]) {
         assignedAt: randomDate(new Date(listItem.createdAt), new Date()),
       });
     }
-
-    // Insert assignments in batches to avoid connection timeout
-    if (assignments.length >= batchSize) {
-      try {
-        await db.insert(schema.listItemAssignments).values(assignments);
-        totalAssignmentsCreated += assignments.length;
-        console.log(`✅ ${assignments.length} list item assignments created`);
-        assignments.length = 0; // Clear the array after successful insertion
-      } catch (error) {
-        console.error("Error inserting list item assignments batch:", error);
-        throw error;
-      }
-    }
   }
 
-  // Insert any remaining assignments
-  if (assignments.length > 0) {
-    try {
-      await db.insert(schema.listItemAssignments).values(assignments);
-      totalAssignmentsCreated += assignments.length;
-      console.log(`✅ ${assignments.length} list item assignments created`);
-    } catch (error) {
-      console.error("Error inserting remaining list item assignments:", error);
-      throw error;
-    }
+  return assignments;
+}
+
+/**
+ * Generate users
+ */
+async function generateUsers() {
+  const users = [];
+  const hashedPassword = await hashPassword("password123");
+
+  // Add users with Indian names
+  for (let i = 0; i < SEED_CONFIG.USERS; i++) {
+    const name = INDIAN_NAMES[i % INDIAN_NAMES.length];
+    const email = `${name.toLowerCase().replace(/\s+/g, ".")}@example.com`;
+
+    users.push({
+      id: generateId(),
+      name,
+      email,
+      password: hashedPassword,
+      createdAt: randomDate(new Date(2023, 0, 1), new Date()),
+      updatedAt: new Date(),
+    });
   }
 
-  return assignments; // Return the assignments array (which will be empty if all were inserted)
+  return users;
 }
 
 /**
@@ -489,6 +571,7 @@ async function generateListItemAssignments(listItems: any[]) {
 export async function seedDatabase() {
   try {
     console.log("🌱 Starting database seeding...");
+    console.time("Database seeding");
 
     // Check if admin user already exists
     const existingAdmin = await db.query.users.findFirst({
@@ -514,7 +597,7 @@ export async function seedDatabase() {
     // Generate users (admin excluded)
     const users = await generateUsers();
     if (users.length > 0) {
-      await db.insert(schema.users).values(users);
+      await batchInsert(schema.users, users);
       console.log(`✅ ${users.length} users created`);
     }
 
@@ -529,75 +612,60 @@ export async function seedDatabase() {
         "⏭️ Groups already exist, skipping creation of groups and related entities"
       );
       console.log("🎉 Database seeding completed successfully");
+      console.timeEnd("Database seeding");
       return;
     }
 
     // Generate groups
-    const groups = await generateGroups(userIds);
-    await db.insert(schema.groups).values(groups);
+    const groups = generateGroups(userIds);
+    await batchInsert(schema.groups, groups);
     console.log(`✅ ${groups.length} groups created`);
 
     // Generate group members
-    const groupMembers = await generateGroupMembers(groups, userIds);
-    await db.insert(schema.groupMembers).values(groupMembers);
+    const groupMembers = generateGroupMembers(groups, userIds);
+    await batchInsert(schema.groupMembers, groupMembers);
     console.log(`✅ ${groupMembers.length} group members created`);
 
-    // Generate categories
-    const categories = await generateCategories(groups);
-    await db.insert(schema.categories).values(categories);
+    // Generate categories (now uses in-memory groupMembers)
+    const categories = generateCategories(groups, groupMembers);
+    await batchInsert(schema.categories, categories);
     console.log(`✅ ${categories.length} categories created`);
 
-    // Generate items
-    const items = await generateItems(categories);
-    await db.insert(schema.items).values(items);
+    // Generate items (now uses in-memory groupMembers)
+    const items = generateItems(categories, groupMembers);
+    await batchInsert(schema.items, items);
     console.log(`✅ ${items.length} items created`);
 
-    // Generate item assignments
-    const itemAssignments = await generateItemAssignments(items);
-    await db.insert(schema.itemAssignments).values(itemAssignments);
+    // Generate item assignments (now uses in-memory groupMembers)
+    const itemAssignments = generateItemAssignments(items, groupMembers);
+    await batchInsert(schema.itemAssignments, itemAssignments);
     console.log(`✅ ${itemAssignments.length} item assignments created`);
 
-    // Generate lists
-    const lists = await generateLists(groups);
-    await db.insert(schema.lists).values(lists);
+    // Generate lists (now uses in-memory groupMembers)
+    const lists = generateLists(groups, groupMembers);
+    await batchInsert(schema.lists, lists);
     console.log(`✅ ${lists.length} lists created`);
 
-    // Generate list items
-    const listItems = await generateListItems(lists);
-    await db.insert(schema.listItems).values(listItems);
+    // Generate list items (now uses in-memory groupMembers and lists)
+    const listItems = generateListItems(lists, groupMembers);
+    await batchInsert(schema.listItems, listItems);
     console.log(`✅ ${listItems.length} list items created`);
 
-    // Generate list item assignments (this now handles its own database insertion)
-    await generateListItemAssignments(listItems);
-    // The console log for list item assignments is now handled within the function
+    // Generate list item assignments (now uses in-memory groupMembers, lists, and listItems)
+    const listItemAssignments = generateListItemAssignments(
+      listItems,
+      lists,
+      groupMembers
+    );
+    await batchInsert(schema.listItemAssignments, listItemAssignments);
+    console.log(
+      `✅ ${listItemAssignments.length} list item assignments created`
+    );
 
     console.log("🎉 Database seeding completed successfully");
+    console.timeEnd("Database seeding");
   } catch (error) {
     console.error("❌ Error seeding database:", error);
     throw error;
   }
-}
-
-async function generateUsers() {
-  const users = [];
-  const hashedPassword = await hashPassword("password123");
-
-  // Don't add admin user here since it's already inserted in seedDatabase function
-
-  // Add users with Indian names
-  for (let i = 0; i < SEED_CONFIG.USERS; i++) {
-    const name = INDIAN_NAMES[i % INDIAN_NAMES.length];
-    const email = `${name.toLowerCase().replace(/\s+/g, ".")}@example.com`;
-
-    users.push({
-      id: generateId(),
-      name,
-      email,
-      password: hashedPassword,
-      createdAt: randomDate(new Date(2023, 0, 1), new Date()),
-      updatedAt: new Date(),
-    });
-  }
-
-  return users;
 }
