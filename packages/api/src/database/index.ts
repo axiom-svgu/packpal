@@ -8,10 +8,10 @@ const fallbackConnectionString = `postgres://${
   process.env.DB_USER || "postgres"
 }:${process.env.DB_PASS || "postgres"}@${process.env.DB_HOST || "localhost"}:${
   process.env.DB_PORT || "5432"
-}/${process.env.DB_NAME || "postgres"}`;
+}/${process.env.DB_NAME || "postgres"}?sslmode=require`;
 
 // Final connection string to use
-const dbConnectionString = fallbackConnectionString;
+const dbConnectionString = process.env.DATABASE_URL || fallbackConnectionString;
 
 console.log("Connecting to database with:", {
   host: process.env.DB_HOST,
@@ -24,7 +24,7 @@ const client = postgres(dbConnectionString, {
   max: 1,
   idle_timeout: 20,
   connect_timeout: 10,
-  ssl: false,
+  ssl: "require",
   connection: {
     application_name: "packpal-api",
   },

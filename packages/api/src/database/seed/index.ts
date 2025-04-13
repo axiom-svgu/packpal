@@ -28,6 +28,30 @@ const SEED_CONFIG = {
   ASSIGNMENTS_PER_LIST_ITEM: 1,
 };
 
+// Indian names in English
+const INDIAN_NAMES = [
+  "Aarav Patel",
+  "Aditi Sharma",
+  "Arjun Singh",
+  "Diya Gupta",
+  "Ishaan Kumar",
+  "Kavya Reddy",
+  "Rohan Malhotra",
+  "Saanvi Joshi",
+  "Vihaan Mehta",
+  "Zara Khan",
+  "Ayaan Verma",
+  "Anaya Choudhary",
+  "Dhruv Agarwal",
+  "Ira Mishra",
+  "Kabir Saxena",
+  "Maya Desai",
+  "Reyansh Kapoor",
+  "Sara Khanna",
+  "Vivaan Bhatia",
+  "Zoya Malhotra",
+];
+
 // Admin user for testing
 const ADMIN_USER = {
   id: generateId(),
@@ -35,6 +59,110 @@ const ADMIN_USER = {
   email: "admin@example.com",
   password: "password123",
 };
+
+// Travel-related group names
+const TRAVEL_GROUP_NAMES = [
+  "Goa Beach Trip",
+  "Himalayan Trek",
+  "Kerala Backwaters",
+  "Rajasthan Heritage",
+  "Ladakh Adventure",
+  "Andaman Islands",
+  "North East Explorer",
+  "South India Tour",
+];
+
+// Travel-related categories
+const TRAVEL_CATEGORIES = [
+  "Clothing & Accessories",
+  "Toiletries & Personal Care",
+  "Electronics & Gadgets",
+  "Travel Documents",
+  "Medicines & First Aid",
+  "Snacks & Food",
+  "Camping Gear",
+  "Photography Equipment",
+];
+
+// Travel-related items
+const TRAVEL_ITEMS = [
+  // Travel Documents
+  { name: "Passport & Visa", category: "Travel Documents" },
+  { name: "Travel Insurance", category: "Travel Documents" },
+  { name: "Flight Tickets", category: "Travel Documents" },
+  { name: "Hotel Reservations", category: "Travel Documents" },
+  { name: "Travel Itinerary", category: "Travel Documents" },
+
+  // Clothing & Accessories
+  { name: "Hiking Boots", category: "Clothing & Accessories" },
+  { name: "Rain Jacket", category: "Clothing & Accessories" },
+  { name: "Swimwear", category: "Clothing & Accessories" },
+  { name: "Sunglasses", category: "Clothing & Accessories" },
+  { name: "Warm Jacket", category: "Clothing & Accessories" },
+  { name: "Comfortable Shoes", category: "Clothing & Accessories" },
+  { name: "Hat/Cap", category: "Clothing & Accessories" },
+  { name: "Scarf/Shawl", category: "Clothing & Accessories" },
+
+  // Toiletries & Personal Care
+  { name: "Sunscreen SPF 50", category: "Toiletries & Personal Care" },
+  { name: "Insect Repellent", category: "Toiletries & Personal Care" },
+  { name: "Toothbrush & Toothpaste", category: "Toiletries & Personal Care" },
+  { name: "Shampoo & Conditioner", category: "Toiletries & Personal Care" },
+  { name: "Deodorant", category: "Toiletries & Personal Care" },
+  { name: "Lip Balm", category: "Toiletries & Personal Care" },
+  { name: "Hand Sanitizer", category: "Toiletries & Personal Care" },
+  { name: "Wet Wipes", category: "Toiletries & Personal Care" },
+
+  // Electronics & Gadgets
+  { name: "Power Bank", category: "Electronics & Gadgets" },
+  { name: "Universal Adapter", category: "Electronics & Gadgets" },
+  { name: "Headphones", category: "Electronics & Gadgets" },
+  { name: "Portable Speaker", category: "Electronics & Gadgets" },
+  { name: "E-Reader", category: "Electronics & Gadgets" },
+  { name: "Travel Router", category: "Electronics & Gadgets" },
+  { name: "Smartphone", category: "Electronics & Gadgets" },
+  { name: "Laptop/Tablet", category: "Electronics & Gadgets" },
+
+  // Medicines & First Aid
+  { name: "First Aid Kit", category: "Medicines & First Aid" },
+  { name: "Motion Sickness Pills", category: "Medicines & First Aid" },
+  { name: "Pain Relievers", category: "Medicines & First Aid" },
+  { name: "Antihistamines", category: "Medicines & First Aid" },
+  { name: "Antacids", category: "Medicines & First Aid" },
+  { name: "Band-Aids", category: "Medicines & First Aid" },
+  { name: "Antiseptic Cream", category: "Medicines & First Aid" },
+  { name: "Prescription Medicines", category: "Medicines & First Aid" },
+
+  // Snacks & Food
+  { name: "Energy Bars", category: "Snacks & Food" },
+  { name: "Water Bottle", category: "Snacks & Food" },
+  { name: "Trail Mix", category: "Snacks & Food" },
+  { name: "Instant Coffee/Tea", category: "Snacks & Food" },
+  { name: "Dried Fruits", category: "Snacks & Food" },
+  { name: "Protein Bars", category: "Snacks & Food" },
+  { name: "Reusable Cutlery", category: "Snacks & Food" },
+  { name: "Collapsible Bowl", category: "Snacks & Food" },
+
+  // Camping Gear
+  { name: "Tent", category: "Camping Gear" },
+  { name: "Sleeping Bag", category: "Camping Gear" },
+  { name: "Camping Stove", category: "Camping Gear" },
+  { name: "Headlamp", category: "Camping Gear" },
+  { name: "Multi-tool", category: "Camping Gear" },
+  { name: "Portable Chair", category: "Camping Gear" },
+  { name: "Cooler Box", category: "Camping Gear" },
+  { name: "Rope & Carabiners", category: "Camping Gear" },
+
+  // Photography Equipment
+  { name: "DSLR Camera", category: "Photography Equipment" },
+  { name: "Tripod", category: "Photography Equipment" },
+  { name: "Extra Memory Cards", category: "Photography Equipment" },
+  { name: "Camera Bag", category: "Photography Equipment" },
+  { name: "Lens Cleaning Kit", category: "Photography Equipment" },
+  { name: "GoPro", category: "Photography Equipment" },
+  { name: "Drone", category: "Photography Equipment" },
+  { name: "Camera Rain Cover", category: "Photography Equipment" },
+];
 
 /**
  * Generate random groups
@@ -44,11 +172,12 @@ async function generateGroups(userIds: string[]) {
 
   for (let i = 0; i < SEED_CONFIG.GROUPS; i++) {
     const createdBy = getRandomItem(userIds);
+    const groupName = TRAVEL_GROUP_NAMES[i % TRAVEL_GROUP_NAMES.length];
 
     groups.push({
       id: generateId(),
-      name: faker.word.words({ count: { min: 1, max: 3 } }) + " Group",
-      description: faker.lorem.sentence(),
+      name: groupName,
+      description: `Planning our amazing ${groupName.toLowerCase()} adventure! Join us for an unforgettable experience.`,
       createdBy,
       createdAt: randomDate(new Date(2023, 0, 1), new Date()),
       updatedAt: new Date(),
@@ -114,11 +243,12 @@ async function generateCategories(groups: any[]) {
 
       const memberIds = groupMembers.map((member) => member.userId);
       const createdBy = getRandomItem(memberIds);
+      const categoryName = TRAVEL_CATEGORIES[i % TRAVEL_CATEGORIES.length];
 
       categories.push({
         id: generateId(),
-        name: faker.commerce.department(),
-        description: faker.lorem.sentence(),
+        name: categoryName,
+        description: `Essential ${categoryName.toLowerCase()} for our trip`,
         groupId: group.id,
         createdBy,
         createdAt: randomDate(new Date(group.createdAt), new Date()),
@@ -145,15 +275,25 @@ async function generateItems(categories: any[]) {
       const memberIds = groupMembers.map((member) => member.userId);
       const createdBy = getRandomItem(memberIds);
 
+      // Filter travel items by category
+      const categoryItems = TRAVEL_ITEMS.filter(
+        (item) => item.category === category.name
+      );
+
+      const selectedItem = categoryItems[i % categoryItems.length] || {
+        name: faker.commerce.productName(),
+        category: category.name,
+      };
+
       items.push({
         id: generateId(),
-        name: faker.commerce.productName(),
-        description: faker.commerce.productDescription(),
+        name: selectedItem.name,
+        description: `Essential ${selectedItem.name.toLowerCase()} for our trip`,
         quantity:
           Math.floor(Math.random() * 10) +
           1 +
           " " +
-          getRandomItem(["pieces", "kg", "bags", "boxes"]),
+          getRandomItem(["pieces", "sets", "pairs"]),
         categoryId: category.id,
         groupId: category.groupId,
         createdBy,
@@ -336,7 +476,7 @@ export async function seedDatabase() {
     console.log("✅ Admin user created");
 
     // Generate users
-    const users = await generateUserData(SEED_CONFIG.USERS);
+    const users = await generateUsers();
     await db.insert(schema.users).values(users);
     console.log(`✅ ${users.length} users created`);
 
@@ -391,4 +531,36 @@ export async function seedDatabase() {
     console.error("❌ Error seeding database:", error);
     throw error;
   }
+}
+
+async function generateUsers() {
+  const users = [];
+  const hashedPassword = await hashPassword("password123");
+
+  // Add admin user
+  users.push({
+    id: ADMIN_USER.id,
+    name: ADMIN_USER.name,
+    email: ADMIN_USER.email,
+    password: hashedPassword,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+
+  // Add users with Indian names
+  for (let i = 0; i < SEED_CONFIG.USERS; i++) {
+    const name = INDIAN_NAMES[i % INDIAN_NAMES.length];
+    const email = `${name.toLowerCase().replace(/\s+/g, ".")}@example.com`;
+
+    users.push({
+      id: generateId(),
+      name,
+      email,
+      password: hashedPassword,
+      createdAt: randomDate(new Date(2023, 0, 1), new Date()),
+      updatedAt: new Date(),
+    });
+  }
+
+  return users;
 }
